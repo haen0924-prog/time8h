@@ -172,8 +172,7 @@
 
 <div class="header">
   <h1>시수 보고 시스템</h1>
-  <span class="header-badge" id="header-badge">강원특별자치도농아인협회</span>
-  <div style="margin-top:0.5rem;display:flex;gap:0.5rem;flex-wrap:wrap;justify-content:center">
+  <div style="display:flex;gap:0.5rem;flex-wrap:wrap;justify-content:center">
     <button onclick="copyLink()" style="font-size:0.75rem;padding:4px 10px;background:rgba(255,255,255,0.2);color:#fff;border:1px solid rgba(255,255,255,0.4);border-radius:6px;cursor:pointer">🔗 직원 링크 복사</button>
     <button onclick="openAdmin()" style="font-size:0.75rem;padding:4px 10px;background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.4);border-radius:6px;cursor:pointer">⚙️ 관리자</button>
     <button onclick="disconnectGas()" style="font-size:0.75rem;padding:4px 10px;background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:6px;cursor:pointer">🔌 연결 해제</button>
@@ -930,7 +929,6 @@ function enterApp(name) {
 
   if (effectiveMode==='senior') {
     document.getElementById('tabs-senior').style.display='flex';
-    document.getElementById('header-badge').textContent=s.name+' '+s.position;
     document.getElementById('view-dashboard').classList.add('active');
     document.querySelectorAll('#tabs-senior .tab')[0].classList.add('active');
     window.APP_SENIOR=name;
@@ -938,7 +936,6 @@ function enterApp(name) {
     startAutoRefresh();
   } else if (effectiveMode==='both') {
     document.getElementById('tabs-both').style.display='flex';
-    document.getElementById('header-badge').textContent=s.name+' '+s.position;
     document.getElementById('view-write').classList.add('active');
     document.querySelectorAll('#tabs-both .tab')[0].classList.add('active');
     window.APP_SENIOR=name;
@@ -2100,7 +2097,7 @@ var adminStaffList = [];
 var adminApprovalList = [];
 
 function openAdmin() {
-  document.querySelectorAll('.view, .header, .tabs').forEach(function(el){ el.style.display='none'; });
+  document.querySelectorAll('.view, .tabs').forEach(function(el){ el.style.display='none'; });
   document.getElementById('admin-wrap').style.display='block';
   adminLoggedIn = false;
   document.getElementById('admin-body').style.display='none';
@@ -2110,7 +2107,12 @@ function openAdmin() {
 }
 function closeAdmin() {
   document.getElementById('admin-wrap').style.display='none';
-  document.querySelectorAll('.view, .header, .tabs').forEach(function(el){ el.style.display=''; });
+  // 헤더 복원
+  document.querySelector('.header').style.display='';
+  // 탭은 모두 숨긴 후 init()이 올바른 탭만 표시
+  document.querySelectorAll('.tabs').forEach(function(el){ el.style.display='none'; });
+  // 뷰 복원
+  document.querySelectorAll('.view').forEach(function(el){ el.style.display=''; });
   init();
 }
 function adminShowAlert(msg, type) {
