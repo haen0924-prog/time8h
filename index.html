@@ -1267,10 +1267,14 @@ function gasRun(fnName, arg, onSuccess, onFail) {
   fetch(GAS_URL, {
     method: 'POST',
     headers: {'Content-Type': 'text/plain'},
-    body: JSON.stringify({ fn: fnName, arg: arg !== undefined ? arg : null })
+    body: JSON.stringify({ fn: fnName, arg: arg !== undefined ? arg : null }),
+    redirect: 'follow'
   })
-  .then(function(r){ return r.json(); })
-  .then(function(res){ onSuccess(res); })
+  .then(function(r){ return r.text(); })
+  .then(function(t){
+    try { onSuccess(JSON.parse(t)); }
+    catch(e){ onFail('응답 파싱 오류: '+t.substring(0,100)); }
+  })
   .catch(function(err){ onFail(err.message||'오류'); });
 }
 
