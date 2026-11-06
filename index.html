@@ -900,25 +900,6 @@ function applyStaffName(name) {
   // 헤더에 이름 표시 + 초기화 버튼
   var badge = document.getElementById('login-badge');
   if (badge) badge.textContent = '🔒 ' + name;
-  // 이름 변경 버튼: staff 모드(일반 직원)만 표시
-  var s2 = STAFF.find(function(x){ return x.name===name; });
-  var isStaffOnly = !s2 || (s2.mode!=='both' && s2.mode!=='senior');
-  if (isStaffOnly) {
-    var hdr = document.querySelector('.header');
-    if (hdr && !document.getElementById('change-name-btn')) {
-      var btn = document.createElement('button');
-      btn.id = 'change-name-btn';
-      btn.textContent = '👤 이름 변경';
-      btn.style.cssText = 'font-size:0.72rem;padding:3px 9px;background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:6px;cursor:pointer;margin-left:0.4rem;';
-      btn.onclick = function(){
-        if (!confirm('이름 선택을 초기화하시겠습니까?')) return;
-        ls.del('sisuje_myname');
-        location.reload();
-      };
-      var btnDiv = hdr.querySelector('div');
-      if (btnDiv) btnDiv.appendChild(btn);
-    }
-  }
 }
 
 function enterApp(name) {
