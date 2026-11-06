@@ -175,7 +175,8 @@
   <span class="header-badge" id="header-badge">강원특별자치도농아인협회</span>
   <div style="margin-top:0.5rem;display:flex;gap:0.5rem;flex-wrap:wrap;justify-content:center">
     <button onclick="copyLink()" style="font-size:0.75rem;padding:4px 10px;background:rgba(255,255,255,0.2);color:#fff;border:1px solid rgba(255,255,255,0.4);border-radius:6px;cursor:pointer">🔗 직원 링크 복사</button>
-    <button onclick="disconnectGas()" style="font-size:0.75rem;padding:4px 10px;background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:6px;cursor:pointer">⚙️ 연결 해제</button>
+    <button onclick="openAdmin()" style="font-size:0.75rem;padding:4px 10px;background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.4);border-radius:6px;cursor:pointer">⚙️ 관리자</button>
+    <button onclick="disconnectGas()" style="font-size:0.75rem;padding:4px 10px;background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:6px;cursor:pointer">🔌 연결 해제</button>
   </div>
 </div>
 
@@ -631,6 +632,81 @@
 
   <div class="btn-group no-print">
     <button class="btn btn-outline" onclick="switchTabSenior('altdashboard')">← 대체 현황으로</button>
+  </div>
+</div>
+
+<!-- ========== [10] 관리자 화면 ========== -->
+<div id="admin-wrap" style="display:none;max-width:700px;margin:40px auto;padding:1.5rem;font-family:inherit;">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem;">
+    <h2 style="font-size:1.2rem;font-weight:700;color:#2c3e50;margin:0;">⚙️ 관리자 설정</h2>
+    <button onclick="closeAdmin()" style="padding:0.4rem 1rem;border:1px solid #ccc;border-radius:6px;background:#fff;cursor:pointer;font-size:0.85rem;">✕ 닫기</button>
+  </div>
+  <div id="admin-alert" style="margin-bottom:0.8rem;"></div>
+
+  <!-- PIN 입력 -->
+  <div id="admin-pin-section" class="card" style="margin-bottom:1rem;">
+    <div style="font-weight:600;margin-bottom:0.8rem;">🔐 관리자 PIN</div>
+    <div style="display:flex;gap:0.6rem;align-items:center;">
+      <input id="admin-pin-input" type="password" placeholder="PIN 입력" maxlength="20"
+        style="flex:1;padding:0.55rem 0.8rem;border:1.5px solid #ccc;border-radius:8px;font-size:0.95rem;"
+        onkeydown="if(event.key==='Enter') adminLogin()">
+      <button onclick="adminLogin()" class="btn btn-primary" style="white-space:nowrap;">확인</button>
+    </div>
+    <div style="font-size:0.78rem;color:#999;margin-top:0.5rem;">처음 입력하는 PIN이 관리자 PIN으로 설정됩니다.</div>
+  </div>
+
+  <!-- 관리 본문 (PIN 확인 후 표시) -->
+  <div id="admin-body" style="display:none;">
+
+    <!-- 직원 관리 -->
+    <div class="card" style="margin-bottom:1rem;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.8rem;">
+        <div style="font-weight:600;">👥 직원 목록</div>
+        <button onclick="adminAddStaffRow()" class="btn btn-alt" style="padding:0.3rem 0.8rem;font-size:0.82rem;">+ 추가</button>
+      </div>
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;font-size:0.82rem;" id="admin-staff-table">
+          <thead>
+            <tr style="background:#f0f4ff;">
+              <th style="padding:6px 8px;border:1px solid #ddd;text-align:center;">이름</th>
+              <th style="padding:6px 8px;border:1px solid #ddd;text-align:center;">직위</th>
+              <th style="padding:6px 8px;border:1px solid #ddd;text-align:center;">부서</th>
+              <th style="padding:6px 8px;border:1px solid #ddd;text-align:center;">연락처</th>
+              <th style="padding:6px 8px;border:1px solid #ddd;text-align:center;">담당선임</th>
+              <th style="padding:6px 8px;border:1px solid #ddd;text-align:center;">권한</th>
+              <th style="padding:6px 8px;border:1px solid #ddd;text-align:center;">삭제</th>
+            </tr>
+          </thead>
+          <tbody id="admin-staff-body"></tbody>
+        </table>
+      </div>
+      <button onclick="adminSaveStaff()" class="btn btn-primary" style="margin-top:0.8rem;width:100%;">💾 직원 목록 저장</button>
+    </div>
+
+    <!-- 결재라인 관리 -->
+    <div class="card" style="margin-bottom:1rem;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.8rem;">
+        <div style="font-weight:600;">📋 결재라인 설정</div>
+        <button onclick="adminAddApprovalRow()" class="btn btn-alt" style="padding:0.3rem 0.8rem;font-size:0.82rem;">+ 추가</button>
+      </div>
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;font-size:0.82rem;" id="admin-approval-table">
+          <thead>
+            <tr style="background:#f0f4ff;">
+              <th style="padding:6px 8px;border:1px solid #ddd;">부서명</th>
+              <th style="padding:6px 8px;border:1px solid #ddd;">수신처</th>
+              <th style="padding:6px 8px;border:1px solid #ddd;">결재자1</th>
+              <th style="padding:6px 8px;border:1px solid #ddd;">결재자2</th>
+              <th style="padding:6px 8px;border:1px solid #ddd;">결재자3</th>
+              <th style="padding:6px 8px;border:1px solid #ddd;">삭제</th>
+            </tr>
+          </thead>
+          <tbody id="admin-approval-body"></tbody>
+        </table>
+      </div>
+      <button onclick="adminSaveApproval()" class="btn btn-primary" style="margin-top:0.8rem;width:100%;">💾 결재라인 저장</button>
+    </div>
+
   </div>
 </div>
 
@@ -2016,6 +2092,131 @@ function disconnectGas() {
   if (!confirm('기관 연결을 해제하시겠습니까?')) return;
   setGas('');
   location.reload();
+}
+
+// ===== 관리자 화면 =====
+var adminLoggedIn = false;
+var adminStaffList = [];
+var adminApprovalList = [];
+
+function openAdmin() {
+  document.querySelectorAll('.view, .header, .tabs').forEach(function(el){ el.style.display='none'; });
+  document.getElementById('admin-wrap').style.display='block';
+  adminLoggedIn = false;
+  document.getElementById('admin-body').style.display='none';
+  document.getElementById('admin-pin-section').style.display='block';
+  document.getElementById('admin-pin-input').value='';
+  document.getElementById('admin-alert').innerHTML='';
+}
+function closeAdmin() {
+  document.getElementById('admin-wrap').style.display='none';
+  document.querySelectorAll('.view, .header, .tabs').forEach(function(el){ el.style.display=''; });
+  init();
+}
+function adminShowAlert(msg, type) {
+  document.getElementById('admin-alert').innerHTML=
+    '<div class="alert alert-'+(type||'info')+'" style="margin-bottom:0.5rem">'+msg+'</div>';
+  setTimeout(function(){ document.getElementById('admin-alert').innerHTML=''; }, 4000);
+}
+function adminLogin() {
+  var pin = document.getElementById('admin-pin-input').value.trim();
+  if (!pin) { adminShowAlert('PIN을 입력하세요.','warn'); return; }
+  adminShowAlert('확인 중...','info');
+  gasRun('adminCheckPin', JSON.stringify({pin:pin}), function(r){
+    if (r.success) {
+      adminLoggedIn = true;
+      document.getElementById('admin-pin-section').style.display='none';
+      document.getElementById('admin-body').style.display='block';
+      if (r.isFirst) adminShowAlert('✅ 관리자 PIN이 설정되었습니다.','success');
+      else adminShowAlert('✅ 관리자 로그인 성공','success');
+      adminLoadData();
+    } else { adminShowAlert(r.message||'PIN 오류','warn'); }
+  }, function(m){ adminShowAlert('오류: '+m,'warn'); });
+}
+function adminLoadData() {
+  // 직원 목록 로드
+  gasRun('loadAltStaffList', undefined, function(r){
+    if (r.success) { adminStaffList = r.list||[]; adminRenderStaff(); }
+  }, function(){});
+  // 결재설정 로드
+  gasRun('loadApprovalConfig', undefined, function(r){
+    var list = Array.isArray(r) ? r : (r.list||[]);
+    adminApprovalList = list;
+    adminRenderApproval();
+  }, function(){});
+}
+function adminRenderStaff() {
+  var tbody = document.getElementById('admin-staff-body');
+  tbody.innerHTML = '';
+  adminStaffList.forEach(function(s, i){
+    tbody.innerHTML += adminStaffRow(s, i);
+  });
+}
+function adminStaffRow(s, i) {
+  var seniorOptions = adminStaffList.map(function(x){
+    return '<option value="'+x.name+'"'+(s.senior===x.name?' selected':'')+'>'+x.name+'</option>';
+  }).join('');
+  return '<tr>'
+    +'<td style="border:1px solid #ddd;padding:4px"><input value="'+(s.name||'')+'" onchange="adminStaffList['+i+'].name=this.value" style="width:70px;padding:3px;border:1px solid #ccc;border-radius:4px;font-size:0.8rem"></td>'
+    +'<td style="border:1px solid #ddd;padding:4px"><input value="'+(s.position||'')+'" onchange="adminStaffList['+i+'].position=this.value" style="width:60px;padding:3px;border:1px solid #ccc;border-radius:4px;font-size:0.8rem"></td>'
+    +'<td style="border:1px solid #ddd;padding:4px"><input value="'+(s.dept||'')+'" onchange="adminStaffList['+i+'].dept=this.value" style="width:60px;padding:3px;border:1px solid #ccc;border-radius:4px;font-size:0.8rem"></td>'
+    +'<td style="border:1px solid #ddd;padding:4px"><input value="'+(s.contact||'')+'" onchange="adminStaffList['+i+'].contact=this.value" style="width:90px;padding:3px;border:1px solid #ccc;border-radius:4px;font-size:0.8rem"></td>'
+    +'<td style="border:1px solid #ddd;padding:4px"><input value="'+(s.senior||'')+'" onchange="adminStaffList['+i+'].senior=this.value" style="width:60px;padding:3px;border:1px solid #ccc;border-radius:4px;font-size:0.8rem"></td>'
+    +'<td style="border:1px solid #ddd;padding:4px;text-align:center"><select onchange="adminStaffList['+i+'].mode=this.value" style="padding:3px;border:1px solid #ccc;border-radius:4px;font-size:0.8rem">'
+      +'<option value="staff"'+(s.mode==='staff'?' selected':'')+'>직원</option>'
+      +'<option value="senior"'+(s.mode==='senior'?' selected':'')+'>선임</option>'
+      +'<option value="both"'+(s.mode==='both'?' selected':'')+'>둘다</option>'
+    +'</select></td>'
+    +'<td style="border:1px solid #ddd;padding:4px;text-align:center"><button onclick="adminRemoveStaff('+i+')" style="padding:2px 8px;background:#e74c3c;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:0.8rem">삭제</button></td>'
+    +'</tr>';
+}
+function adminAddStaffRow() {
+  adminStaffList.push({name:'',position:'',dept:'',contact:'',senior:'',mode:'staff',timeRange:'9-18',email:''});
+  adminRenderStaff();
+}
+function adminRemoveStaff(i) {
+  adminStaffList.splice(i,1);
+  adminRenderStaff();
+}
+function adminSaveStaff() {
+  adminShowAlert('저장 중...','info');
+  gasRun('adminSaveStaff', JSON.stringify({list:adminStaffList}), function(r){
+    if (r.success) { adminShowAlert('✅ 직원 목록 저장 완료','success'); }
+    else adminShowAlert('실패: '+(r.message||''),'warn');
+  }, function(m){ adminShowAlert('오류: '+m,'warn'); });
+}
+function adminRenderApproval() {
+  var tbody = document.getElementById('admin-approval-body');
+  tbody.innerHTML = '';
+  adminApprovalList.forEach(function(a, i){
+    tbody.innerHTML += adminApprovalRow(a, i);
+  });
+}
+function adminApprovalRow(a, i) {
+  var ap = a.approvers||[];
+  return '<tr>'
+    +'<td style="border:1px solid #ddd;padding:4px"><input value="'+(a.dept||'')+'" onchange="adminApprovalList['+i+'].dept=this.value" style="width:70px;padding:3px;border:1px solid #ccc;border-radius:4px;font-size:0.8rem"></td>'
+    +'<td style="border:1px solid #ddd;padding:4px"><input value="'+(a.addressee||'')+'" onchange="adminApprovalList['+i+'].addressee=this.value" style="width:100px;padding:3px;border:1px solid #ccc;border-radius:4px;font-size:0.8rem"></td>'
+    +'<td style="border:1px solid #ddd;padding:4px"><input value="'+(ap[0]||'')+'" onchange="adminApprovalList['+i+'].approvers[0]=this.value" style="width:60px;padding:3px;border:1px solid #ccc;border-radius:4px;font-size:0.8rem"></td>'
+    +'<td style="border:1px solid #ddd;padding:4px"><input value="'+(ap[1]||'')+'" onchange="adminApprovalList['+i+'].approvers[1]=this.value" style="width:60px;padding:3px;border:1px solid #ccc;border-radius:4px;font-size:0.8rem"></td>'
+    +'<td style="border:1px solid #ddd;padding:4px"><input value="'+(ap[2]||'')+'" onchange="adminApprovalList['+i+'].approvers[2]=this.value" style="width:60px;padding:3px;border:1px solid #ccc;border-radius:4px;font-size:0.8rem"></td>'
+    +'<td style="border:1px solid #ddd;padding:4px;text-align:center"><button onclick="adminRemoveApproval('+i+')" style="padding:2px 8px;background:#e74c3c;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:0.8rem">삭제</button></td>'
+    +'</tr>';
+}
+function adminAddApprovalRow() {
+  adminApprovalList.push({dept:'',addressee:'',approvers:['','','']});
+  adminRenderApproval();
+}
+function adminRemoveApproval(i) {
+  adminApprovalList.splice(i,1);
+  adminRenderApproval();
+}
+function adminSaveApproval() {
+  adminShowAlert('저장 중...','info');
+  gasRun('adminSaveApproval', JSON.stringify({list:adminApprovalList}), function(r){
+    if (r.success) { adminShowAlert('✅ 결재라인 저장 완료','success'); }
+    else adminShowAlert('실패: '+(r.message||''),'warn');
+  }, function(m){ adminShowAlert('오류: '+m,'warn'); });
 }
 
 // ===== URL 파라미터에서 GAS 주소 주입 =====
