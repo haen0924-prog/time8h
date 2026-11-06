@@ -183,14 +183,16 @@
 <div class="tabs" id="tabs-staff">
   <button class="tab active" onclick="switchTab('write')">✏️ 작성</button>
   <button class="tab" onclick="switchTab('myrecord')">📑 내 시수 확인</button>
-  <button class="tab tab-alt" onclick="switchTab('altwrite')">🔄 대체시수 작성</button>
-  <button class="tab tab-alt" onclick="switchTab('altrecord')">📋 내 대체시수 확인</button>
+  <button class="tab tab-alt" onclick="switchTab('altwrite')">🔄 발생 작성</button>
+  <button class="tab tab-alt" onclick="switchTab('altuse')">🌴 사용 작성</button>
+  <button class="tab tab-alt" onclick="switchTab('altrecord')">📋 대체시수 확인</button>
 </div>
 <div class="tabs" id="tabs-both" style="display:none">
   <button class="tab active" onclick="switchTab('write')">✏️ 작성</button>
   <button class="tab" onclick="switchTab('myrecord')">📑 내 시수 확인</button>
-  <button class="tab tab-alt" onclick="switchTab('altwrite')">🔄 대체시수 작성</button>
-  <button class="tab tab-alt" onclick="switchTab('altrecord')">📋 내 대체시수 확인</button>
+  <button class="tab tab-alt" onclick="switchTab('altwrite')">🔄 발생 작성</button>
+  <button class="tab tab-alt" onclick="switchTab('altuse')">🌴 사용 작성</button>
+  <button class="tab tab-alt" onclick="switchTab('altrecord')">📋 대체시수 확인</button>
   <button class="tab" onclick="switchTabSenior('dashboard')">👤 신청 현황</button>
   <button class="tab tab-alt" onclick="switchTabSenior('altdashboard')">🔄 대체 현황</button>
 </div>
@@ -296,16 +298,16 @@
   </div>
 </div>
 
-<!-- ========== [3] 대체시수 작성 ========== -->
+<!-- ========== [3] 대체시수 발생 작성 ========== -->
 <div class="view" id="view-altwrite">
   <div id="alert-area-alt"></div>
 
   <div class="alert alert-alt">
-    🔄 <strong>대체시수</strong>란? 근무시간 외 초과 근무(발생)를 나중에 쉬는 시간으로 사용하는 것입니다.
+    🔄 <strong>대체시수 발생</strong>: 근무시간 외 초과 근무 일시와 인정시간을 입력하고 저장하면 선임이 확인합니다.
   </div>
 
   <div class="top-btn-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem;margin-bottom:0.8rem;">
-    <button class="btn btn-alt" onclick="saveAltToSheet()" style="justify-content:center;padding:12px 6px;">💾 대체시수 저장</button>
+    <button class="btn btn-alt" onclick="saveAltOccToSheet()" style="justify-content:center;padding:12px 6px;">💾 발생 저장</button>
     <button class="btn btn-outline" onclick="loadAltFromSheet()" style="justify-content:center;padding:12px 6px;">🔄 불러오기</button>
     <button class="btn btn-outline" onclick="resetAltForm()" style="justify-content:center;padding:12px 6px;border-color:#c0392b;color:#c0392b;">🗑️ 초기화</button>
   </div>
@@ -327,39 +329,26 @@
     </div>
   </div>
 
-  <!-- 대체시수 내역 테이블 -->
+  <!-- 발생 내역 테이블 -->
   <div class="card">
-    <div class="card-title">대체시수 내역</div>
+    <div class="card-title card-title-alt">🕐 발생일시 내역 (1.5배 가산)</div>
     <div class="table-scroll-wrap">
       <table class="alt-table" id="alt-table" style="font-size:0.70rem;">
         <colgroup>
           <col style="width:28px"><col style="width:28px"><col style="width:28px"><col style="width:36px">
-          <col style="width:96px"><col style="width:36px"><col style="width:72px">
-          <col style="width:10px">
-          <col style="width:28px"><col style="width:28px"><col style="width:96px">
-          <col style="width:40px">
+          <col style="width:96px"><col style="width:40px"><col style="width:80px">
+          <col style="width:48px">
         </colgroup>
         <thead>
-          <tr>
-            <th style="background:#6b7280;width:28px;">구분</th>
-            <th colspan="6" style="background:#9a6820;border-right:2px solid #c8a862;">발생일시 (1.5배 가산)</th>
-            <th style="background:#555;width:10px;padding:0;"></th>
-            <th colspan="3" style="background:#2d5986;">사용일시</th>
-            <th style="background:#2d7a4f;">선임<br>확인</th>
-          </tr>
           <tr>
             <th style="background:#8a9099;">번호</th>
             <th style="background:#b88030;">월</th>
             <th style="background:#b88030;">일</th>
             <th style="background:#b88030;">요일</th>
-            <th style="background:#b88030;">시간</th>
+            <th style="background:#b88030;">시간 (시작~종료)</th>
             <th style="background:#b88030;">인정<br>시간</th>
-            <th style="background:#b88030;border-right:2px solid #c8a862;">사유</th>
-            <th style="background:#777;width:10px;padding:0;"></th>
-            <th style="background:#3d6fa0;">월</th>
-            <th style="background:#3d6fa0;">일</th>
-            <th style="background:#3d6fa0;">시간</th>
-            <th style="background:#3d9a6f;">확인</th>
+            <th style="background:#b88030;">사유</th>
+            <th style="background:#2d7a4f;">발생<br>확인</th>
           </tr>
         </thead>
         <tbody id="alt-body"></tbody>
@@ -374,6 +363,69 @@
   <div class="card">
     <div class="card-title">특이사항 / 비고</div>
     <textarea id="alt-note" rows="3" placeholder="특이사항이 있으면 입력하세요." style="width:100%"></textarea>
+  </div>
+</div>
+
+<!-- ========== [3-2] 대체시수 사용 작성 ========== -->
+<div class="view" id="view-altuse">
+  <div id="alert-area-altuse"></div>
+
+  <div class="alert alert-info">
+    🌴 <strong>대체시수 사용</strong>: 발생이 선임 확인된 후 사용일시를 입력하세요.
+  </div>
+
+  <div class="top-btn-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem;margin-bottom:0.8rem;">
+    <button class="btn btn-primary" onclick="saveAltUseToSheet()" style="justify-content:center;padding:12px 6px;">💾 사용 저장</button>
+    <button class="btn btn-outline" onclick="loadAltForUse()" style="justify-content:center;padding:12px 6px;">🔄 발생 불러오기</button>
+    <button class="btn btn-outline" onclick="resetAltUseForm()" style="justify-content:center;padding:12px 6px;border-color:#c0392b;color:#c0392b;">🗑️ 초기화</button>
+  </div>
+
+  <!-- 신청자 정보 -->
+  <div class="card">
+    <div class="card-title">신청자 정보</div>
+    <div style="width:100%;overflow-x:auto;">
+      <div style="display:flex;gap:0.5rem;flex-wrap:nowrap;align-items:flex-end;">
+        <div class="form-group" style="flex:1;min-width:70px"><label>성명</label><input type="text" id="altuse-name" readonly style="width:100%;background:#f9f9f9;cursor:default"></div>
+        <div class="form-group" style="flex:1.5;min-width:90px"><label>문서번호</label><input type="text" id="altuse-doc-no" placeholder="예) 대체-2027-01" style="width:100%"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 발생+사용 테이블 -->
+  <div class="card">
+    <div class="card-title">사용일시 입력 (발생 내역 확인 후 사용일 입력)</div>
+    <div class="table-scroll-wrap">
+      <table class="alt-table" id="altuse-table" style="font-size:0.70rem;">
+        <colgroup>
+          <col style="width:24px">
+          <col style="width:26px"><col style="width:26px"><col style="width:30px"><col style="width:90px"><col style="width:36px">
+          <col style="width:10px">
+          <col style="width:26px"><col style="width:26px"><col style="width:30px"><col style="width:90px">
+          <col style="width:44px">
+        </colgroup>
+        <thead>
+          <tr>
+            <th style="background:#8a9099;" rowspan="2">번<br>호</th>
+            <th colspan="5" style="background:#9a6820;border-right:2px solid #ccc;">🕐 발생 (읽기전용)</th>
+            <th style="background:#555;padding:0;" rowspan="2"></th>
+            <th colspan="4" style="background:#2d5986;">🌴 사용일시 입력</th>
+            <th style="background:#2d5986;" rowspan="2">사용<br>확인</th>
+          </tr>
+          <tr>
+            <th style="background:#b88030;">월</th>
+            <th style="background:#b88030;">일</th>
+            <th style="background:#b88030;">요일</th>
+            <th style="background:#b88030;">시간</th>
+            <th style="background:#b88030;border-right:2px solid #ccc;">인정</th>
+            <th style="background:#3d6fa0;">월</th>
+            <th style="background:#3d6fa0;">일</th>
+            <th style="background:#3d6fa0;">요일</th>
+            <th style="background:#3d6fa0;">시간</th>
+          </tr>
+        </thead>
+        <tbody id="altuse-body"></tbody>
+      </table>
+    </div>
   </div>
 </div>
 
@@ -411,28 +463,40 @@
         <span class="card-title card-title-alt" style="margin:0">🔄 대체시수 상세</span>
       </div>
       <div id="altrecord-info" style="display:none;border:1px solid var(--border);border-radius:8px;padding:0.8rem 1rem;margin-bottom:1rem;font-size:0.85rem"><span id="altrecord-summary"></span></div>
+
+      <!-- 발생 섹션 -->
+      <div style="font-size:0.78rem;font-weight:700;color:#7a4f00;letter-spacing:0.06em;margin-bottom:0.5rem;padding:0.4rem 0.6rem;background:#fdf4e7;border-radius:5px;border-left:3px solid #e8a830;">🕐 발생 내역</div>
+      <div style="overflow-x:auto;margin-bottom:1rem">
+        <table style="width:100%;border-collapse:collapse;font-size:0.82rem">
+          <thead>
+            <tr style="background:#9a6820;color:white">
+              <th style="padding:6px 5px;text-align:center;">월</th>
+              <th style="padding:6px 5px;text-align:center;">일</th>
+              <th style="padding:6px 5px;text-align:center;">요일</th>
+              <th style="padding:6px 5px;text-align:center;">시간</th>
+              <th style="padding:6px 5px;text-align:center;">인정시간</th>
+              <th style="padding:6px 5px;text-align:center;">사유</th>
+              <th style="padding:6px 5px;text-align:center;background:#2d7a4f;width:60px">발생확인</th>
+            </tr>
+          </thead>
+          <tbody id="altrecord-occ-body"></tbody>
+        </table>
+      </div>
+
+      <!-- 사용 섹션 -->
+      <div style="font-size:0.78rem;font-weight:700;color:#1a3a5c;letter-spacing:0.06em;margin-bottom:0.5rem;padding:0.4rem 0.6rem;background:#eef4fb;border-radius:5px;border-left:3px solid #2d5986;">🌴 사용 내역</div>
       <div style="overflow-x:auto">
         <table style="width:100%;border-collapse:collapse;font-size:0.82rem">
           <thead>
-            <tr style="background:var(--alt);color:white">
-              <th style="padding:8px 5px;text-align:center;" colspan="5">🕐 발생</th>
-              <th style="padding:8px 5px;text-align:center;" colspan="4">🌴 사용</th>
-              <th style="padding:8px 5px;text-align:center;width:52px">선임확인</th>
-            </tr>
-            <tr style="background:#b88030;color:white">
-              <th style="padding:6px 5px;">월</th>
-              <th style="padding:6px 5px;">일</th>
-              <th style="padding:6px 5px;">요일</th>
-              <th style="padding:6px 5px;">시간</th>
-              <th style="padding:6px 5px;border-right:2px solid #fff;">업무내용</th>
-              <th style="padding:6px 5px;background:#3d6fa0;">월</th>
-              <th style="padding:6px 5px;background:#3d6fa0;">일</th>
-              <th style="padding:6px 5px;background:#3d6fa0;">요일</th>
-              <th style="padding:6px 5px;background:#3d6fa0;border-right:2px solid #fff;">시간</th>
-              <th style="padding:6px 5px;background:#3d9a6f;">확인</th>
+            <tr style="background:#2d5986;color:white">
+              <th style="padding:6px 5px;text-align:center;">월</th>
+              <th style="padding:6px 5px;text-align:center;">일</th>
+              <th style="padding:6px 5px;text-align:center;">요일</th>
+              <th style="padding:6px 5px;text-align:center;">시간</th>
+              <th style="padding:6px 5px;text-align:center;background:#2d7a4f;width:60px">사용확인</th>
             </tr>
           </thead>
-          <tbody id="altrecord-body"></tbody>
+          <tbody id="altrecord-use-body"></tbody>
         </table>
       </div>
     </div>
@@ -518,35 +582,55 @@
     <div class="card-title card-title-alt">신청자 정보</div>
     <div id="altconfirm-info" style="font-size:0.9rem;color:var(--text-muted)">대체시수 현황에서 직원을 클릭하세요.</div>
   </div>
+
+  <!-- 발생 확인 -->
   <div class="card">
-    <div class="card-title card-title-alt">대체시수 선임 확인</div>
+    <div style="font-size:0.78rem;font-weight:700;color:#7a4f00;letter-spacing:0.06em;margin-bottom:0.8rem;padding:0.4rem 0.6rem;background:#fdf4e7;border-radius:5px;border-left:3px solid #e8a830;">🕐 발생 선임 확인</div>
     <div class="table-scroll-wrap">
-      <table class="alt-table" id="altconfirm-table">
+      <table style="width:100%;border-collapse:collapse;font-size:0.82rem">
         <thead>
-          <tr>
-            <th colspan="5" style="background:#9a6820;border-right:2px solid #c8a862;">🕐 대체시수 발생</th>
-            <th style="background:#888;width:16px;padding:0;"></th>
-            <th colspan="4" style="background:#2d5986;border-left:2px solid #c8a862;">🌴 대체시수 사용</th>
-            <th style="background:#2d7a4f;">선임확인</th>
-          </tr>
-          <tr>
-            <th style="background:#b88030;">월</th><th style="background:#b88030;">일</th>
-            <th style="background:#b88030;">요일</th><th style="background:#b88030;">시간</th>
-            <th style="background:#b88030;border-right:2px solid #c8a862;">업무내용</th>
-            <th style="background:#aaa;width:16px;padding:0;"></th>
-            <th style="background:#3d6fa0;">월</th><th style="background:#3d6fa0;">일</th>
-            <th style="background:#3d6fa0;">요일</th>
-            <th style="background:#3d6fa0;border-right:2px solid #c8a862;">시간</th>
-            <th style="background:#3d9a6f;min-width:48px;">확인</th>
+          <tr style="background:#9a6820;color:white">
+            <th style="padding:6px 5px;text-align:center;">월</th>
+            <th style="padding:6px 5px;text-align:center;">일</th>
+            <th style="padding:6px 5px;text-align:center;">요일</th>
+            <th style="padding:6px 5px;text-align:center;">시간</th>
+            <th style="padding:6px 5px;text-align:center;">인정시간</th>
+            <th style="padding:6px 5px;text-align:center;">사유</th>
+            <th style="padding:6px 5px;text-align:center;background:#2d7a4f;min-width:52px;">발생확인</th>
           </tr>
         </thead>
-        <tbody id="altconfirm-body"></tbody>
+        <tbody id="altconfirm-occ-body"></tbody>
       </table>
     </div>
+    <div class="btn-group no-print" style="margin-top:0.8rem;">
+      <button class="btn btn-alt" onclick="saveAltOccConfirm()">✅ 발생확인 저장</button>
+    </div>
   </div>
+
+  <!-- 사용 확인 -->
+  <div class="card">
+    <div style="font-size:0.78rem;font-weight:700;color:#1a3a5c;letter-spacing:0.06em;margin-bottom:0.8rem;padding:0.4rem 0.6rem;background:#eef4fb;border-radius:5px;border-left:3px solid #2d5986;">🌴 사용 선임 확인</div>
+    <div class="table-scroll-wrap">
+      <table style="width:100%;border-collapse:collapse;font-size:0.82rem">
+        <thead>
+          <tr style="background:#2d5986;color:white">
+            <th style="padding:6px 5px;text-align:center;">월</th>
+            <th style="padding:6px 5px;text-align:center;">일</th>
+            <th style="padding:6px 5px;text-align:center;">요일</th>
+            <th style="padding:6px 5px;text-align:center;">시간</th>
+            <th style="padding:6px 5px;text-align:center;background:#2d7a4f;min-width:52px;">사용확인</th>
+          </tr>
+        </thead>
+        <tbody id="altconfirm-use-body"></tbody>
+      </table>
+    </div>
+    <div class="btn-group no-print" style="margin-top:0.8rem;">
+      <button class="btn btn-primary" onclick="saveAltUseConfirm()">✅ 사용확인 저장</button>
+    </div>
+  </div>
+
   <div class="btn-group no-print">
     <button class="btn btn-outline" onclick="switchTabSenior('altdashboard')">← 대체 현황으로</button>
-    <button class="btn btn-alt" onclick="saveAltConfirm()">✅ 확인 저장</button>
   </div>
 </div>
 
@@ -606,12 +690,14 @@ let reportData = { docNo:'', name:'', position:'', dept:'', contact:'', remarks:
 let confirmData = null;
 
 // ===== 대체시수 데이터 =====
-// altRows: [{occMonth, occDay, occDow, occStart, occEnd, occContent, useMonth, useDay, useDow, useStart, useEnd, confirmed}]
+// altRows: [{occMonth, occDay, occDow, occStart, occEnd, occHours, occReason, occConfirmed, useMonth, useDay, useDow, useStart, useEnd, useConfirmed}]
 let altData = { docNo:'', name:'', position:'', dept:'', contact:'', note:'', rows:[] };
+let altUseData = { docNo:'', name:'', rows:[] }; // 사용 입력용
 let altConfirmData = null;
 
 function makeAltEmptyRow() {
-  return { occMonth:'', occDay:'', occDow:'', occStart:'', occEnd:'', occReason:'', useMonth:'', useDay:'', useStart:'', useEnd:'', confirmed:false };
+  return { occMonth:'', occDay:'', occDow:'', occStart:'', occEnd:'', occHours:'', occReason:'',
+           occConfirmed:false, useMonth:'', useDay:'', useDow:'', useStart:'', useEnd:'', useConfirmed:false };
 }
 
 // 인정시간 계산 (분 단위 → 1.5배 → 시간 반올림)
@@ -639,13 +725,20 @@ function resetForm() {
 }
 
 function resetAltForm() {
-  if (!confirm('대체시수 입력 내용을 모두 지우고 초기화하시겠습니까?')) return;
+  if (!confirm('대체시수 발생 입력 내용을 모두 지우고 초기화하시겠습니까?')) return;
   var n=altData.name, p=altData.position, d=altData.dept, c=altData.contact;
-  altData = { docNo:'', name:n, position:p, dept:d, contact:c, note:'', rows:[] };
+  altData = { docNo:'', name:n, position:p, dept:d, contact:c, note:'', rows:[makeAltEmptyRow(),makeAltEmptyRow(),makeAltEmptyRow()] };
   var el;
   ['alt-doc-no','alt-note'].forEach(function(id){ el=document.getElementById(id); if(el) el.value=''; });
-  addAltRow(); addAltRow(); addAltRow(); // 기본 3행
+  renderAltTable();
   showAltAlert('초기화되었습니다.', 'info');
+}
+
+function resetAltUseForm() {
+  if (!confirm('사용 입력 내용을 초기화하시겠습니까?')) return;
+  altUseData = { docNo: altUseData.docNo, name: altUseData.name, rows: altUseData.rows.map(function(r){ return Object.assign({}, r, {useMonth:'',useDay:'',useDow:'',useStart:'',useEnd:''}); }) };
+  renderAltUseTable();
+  showAltUseAlert('초기화되었습니다.', 'info');
 }
 
 // ===== 앱 시작 =====
@@ -827,7 +920,7 @@ function getActiveTabs() {
 }
 
 function getAllViewIds() {
-  return ['write','print','dashboard','confirm','myrecord','altwrite','altrecord','altdashboard','altconfirm'];
+  return ['write','print','dashboard','confirm','myrecord','altwrite','altuse','altrecord','altdashboard','altconfirm'];
 }
 
 function clearAllViews() {
@@ -857,6 +950,7 @@ function switchTab(tab) {
     renderAltTable();
   }
   if (tab==='altrecord') loadMyAltLatestRecord();
+  if (tab==='altuse') initAltUseTab();
 }
 
 function switchTabSenior(tab) {
@@ -964,19 +1058,19 @@ function updateProgress() {
   if (pb) pb.style.width=(filled/8*100)+'%';
 }
 
-// ===== 대체시수 테이블 =====
+// ===== 대체시수 테이블 (발생 전용) =====
 var DOW_OPTIONS = ['','월','화','수','목','금','토','일'];
 
 function renderAltTable() {
   var tbody=document.getElementById('alt-body');
   if (!tbody) return;
   tbody.innerHTML='';
-  var B='border:1px solid #e8d8b8;', BU='border:1px solid #c8d8e8;', BR='border-right:2px solid #c8a862;';
+  var B='border:1px solid #e8d8b8;';
   var IS='border:none;background:transparent;text-align:center;font-size:0.68rem;font-family:inherit;box-sizing:border-box;width:100%;padding:2px 1px;';
   altData.rows.forEach(function(row, i) {
-    var locked=row.confirmed;
+    var locked=row.occConfirmed;
     var tr=document.createElement('tr');
-    var approved=calcApprovedHours(row.occStart, row.occEnd);
+    var approved=row.occHours||calcApprovedHours(row.occStart, row.occEnd);
     if (locked) {
       tr.style.cssText='background:#f5f0e0;color:#666;';
       tr.innerHTML=
@@ -986,11 +1080,7 @@ function renderAltTable() {
         '<td style="'+B+'padding:4px 3px;text-align:center;">'+(row.occDow||'')+'</td>'+
         '<td style="'+B+'padding:4px 3px;text-align:center;">'+(row.occStart||'')+' ~ '+(row.occEnd||'')+'</td>'+
         '<td style="'+B+'padding:4px 3px;text-align:center;font-weight:600;color:#8a5e00;">'+(approved||'')+'</td>'+
-        '<td style="'+B+BR+'padding:4px 3px;text-align:center;">'+(row.occReason||'')+'</td>'+
-        '<td style="background:#e8e8e8;border:1px solid #ccc;padding:0;"></td>'+
-        '<td style="'+BU+'padding:4px 3px;text-align:center;">'+(row.useMonth||'')+'</td>'+
-        '<td style="'+BU+'padding:4px 3px;text-align:center;">'+(row.useDay||'')+'</td>'+
-        '<td style="'+BU+'padding:4px 3px;text-align:center;">'+(row.useStart||'')+' ~ '+(row.useEnd||'')+'</td>'+
+        '<td style="'+B+'padding:4px 3px;text-align:center;">'+(row.occReason||'')+'</td>'+
         '<td style="border:1px solid #9dd4b4;padding:4px 3px;text-align:center;"><span style="font-size:0.72rem;color:#2d7a4f;font-weight:600;">✓확인</span></td>';
     } else {
       var dowOpt=DOW_OPTIONS.map(function(d){ return '<option value="'+d+'"'+(row.occDow===d?' selected':'')+'>'+d+'</option>'; }).join('');
@@ -1005,19 +1095,105 @@ function renderAltTable() {
           '<input type="text" value="'+(row.occEnd||'')+'" placeholder="08:00" oninput="updateAltRow('+i+',\'occEnd\',this.value);reRenderApproved('+i+')" style="'+IS+'max-width:46px;display:inline-block;width:46px;">'+
         '</td>'+
         '<td style="'+B+'padding:2px;text-align:center;font-weight:600;color:#8a5e00;font-size:0.68rem;" id="alt-approved-'+i+'">'+(approved||'')+'</td>'+
-        '<td style="'+B+BR+'padding:2px;"><input type="text" value="'+(row.occReason||'')+'" placeholder="사유" oninput="updateAltRow('+i+',\'occReason\',this.value)" style="'+IS+'"></td>'+
-        '<td style="background:#f0f0f0;border:1px solid #ccc;padding:0;"></td>'+
-        '<td style="'+BU+'padding:2px;"><input type="text" inputmode="numeric" maxlength="2" value="'+(row.useMonth||'')+'" placeholder="월" oninput="updateAltRow('+i+',\'useMonth\',this.value)" style="'+IS+'"></td>'+
-        '<td style="'+BU+'padding:2px;"><input type="text" inputmode="numeric" maxlength="2" value="'+(row.useDay||'')+'" placeholder="일" oninput="updateAltRow('+i+',\'useDay\',this.value)" style="'+IS+'"></td>'+
-        '<td style="'+BU+'padding:2px;white-space:nowrap;text-align:center;">'+
-          '<input type="text" value="'+(row.useStart||'')+'" placeholder="09:00" oninput="updateAltRow('+i+',\'useStart\',this.value)" style="'+IS+'max-width:46px;display:inline-block;width:46px;">'+
-          '<span style="font-size:0.72rem;color:#aaa;">~</span>'+
-          '<input type="text" value="'+(row.useEnd||'')+'" placeholder="18:00" oninput="updateAltRow('+i+',\'useEnd\',this.value)" style="'+IS+'max-width:46px;display:inline-block;width:46px;">'+
-        '</td>'+
-        '<td style="border:1px solid #9dd4b4;padding:2px;text-align:center;"><div class="confirm-check" id="alt-cc-'+i+'" onclick="toggleAltConfirm2('+i+')"></div></td>';
+        '<td style="'+B+'padding:2px;"><input type="text" value="'+(row.occReason||'')+'" placeholder="사유" oninput="updateAltRow('+i+',\'occReason\',this.value)" style="'+IS+'"></td>'+
+        '<td style="border:1px solid #9dd4b4;padding:2px;text-align:center;font-size:0.72rem;color:#aaa;">대기</td>';
     }
     tbody.appendChild(tr);
   });
+}
+
+// ===== 대체시수 사용 테이블 =====
+function renderAltUseTable() {
+  var tbody=document.getElementById('altuse-body');
+  if (!tbody) return;
+  tbody.innerHTML='';
+  var BO='border:1px solid #e8d8b8;', BU='border:1px solid #c8d8e8;';
+  var IS='border:none;background:transparent;text-align:center;font-size:0.68rem;font-family:inherit;box-sizing:border-box;width:100%;padding:2px 1px;';
+  var rows=altUseData.rows||[];
+  if (!rows.length) {
+    tbody.innerHTML='<tr><td colspan="12" style="text-align:center;padding:1.5rem;color:#aaa;font-size:0.85rem">발생 불러오기를 눌러 데이터를 가져오세요.</td></tr>';
+    return;
+  }
+  rows.forEach(function(row,i){
+    var tr=document.createElement('tr');
+    var locked=row.useConfirmed;
+    if (locked) {
+      tr.style.background='#f0f7ff';
+      tr.innerHTML=
+        '<td style="'+BO+'padding:3px;text-align:center;font-weight:600;color:#555;">'+(i+1)+'</td>'+
+        '<td style="'+BO+'padding:3px;text-align:center;">'+(row.occMonth||'')+'</td>'+
+        '<td style="'+BO+'padding:3px;text-align:center;">'+(row.occDay||'')+'</td>'+
+        '<td style="'+BO+'padding:3px;text-align:center;">'+(row.occDow||'')+'</td>'+
+        '<td style="'+BO+'padding:3px;text-align:center;">'+(row.occStart||'')+' ~ '+(row.occEnd||'')+'</td>'+
+        '<td style="'+BO+'padding:3px;text-align:center;font-weight:600;color:#8a5e00;">'+(row.occHours||calcApprovedHours(row.occStart,row.occEnd)||'')+'</td>'+
+        '<td style="background:#ddd;border:1px solid #ccc;padding:0;"></td>'+
+        '<td style="'+BU+'padding:3px;text-align:center;">'+(row.useMonth||'')+'</td>'+
+        '<td style="'+BU+'padding:3px;text-align:center;">'+(row.useDay||'')+'</td>'+
+        '<td style="'+BU+'padding:3px;text-align:center;">'+(row.useDow||'')+'</td>'+
+        '<td style="'+BU+'padding:3px;text-align:center;">'+(row.useStart||'')+' ~ '+(row.useEnd||'')+'</td>'+
+        '<td style="border:1px solid #9dd4b4;padding:3px;text-align:center;"><span style="font-size:0.72rem;color:#2d7a4f;font-weight:600;">✓확인</span></td>';
+    } else {
+      var occOk=row.occConfirmed;
+      var dowOpt=DOW_OPTIONS.map(function(d){return '<option value="'+d+'"'+(row.useDow===d?' selected':'')+'>'+d+'</option>';}).join('');
+      tr.innerHTML=
+        '<td style="'+BO+'padding:3px;text-align:center;font-weight:600;color:#555;">'+(i+1)+'</td>'+
+        '<td style="'+BO+'padding:3px;text-align:center;">'+(row.occMonth||'')+'</td>'+
+        '<td style="'+BO+'padding:3px;text-align:center;">'+(row.occDay||'')+'</td>'+
+        '<td style="'+BO+'padding:3px;text-align:center;">'+(row.occDow||'')+'</td>'+
+        '<td style="'+BO+'padding:3px;text-align:center;">'+(row.occStart||'')+' ~ '+(row.occEnd||'')+'</td>'+
+        '<td style="'+BO+'padding:3px;text-align:center;font-weight:600;color:#8a5e00;">'+(row.occHours||calcApprovedHours(row.occStart,row.occEnd)||'')+'</td>'+
+        '<td style="background:#ddd;border:1px solid #ccc;padding:0;"></td>'+
+        (occOk
+          ? '<td style="'+BU+'padding:2px;"><input type="text" inputmode="numeric" maxlength="2" value="'+(row.useMonth||'')+'" placeholder="월" oninput="updateAltUseRow('+i+',\'useMonth\',this.value)" style="'+IS+'"></td>'+
+            '<td style="'+BU+'padding:2px;"><input type="text" inputmode="numeric" maxlength="2" value="'+(row.useDay||'')+'" placeholder="일" oninput="updateAltUseRow('+i+',\'useDay\',this.value)" style="'+IS+'"></td>'+
+            '<td style="'+BU+'padding:2px;"><select onchange="updateAltUseRow('+i+',\'useDow\',this.value)" style="'+IS+'">'+dowOpt+'</select></td>'+
+            '<td style="'+BU+'padding:2px;white-space:nowrap;text-align:center;">'+
+              '<input type="text" value="'+(row.useStart||'')+'" placeholder="09:00" oninput="updateAltUseRow('+i+',\'useStart\',this.value)" style="'+IS+'max-width:44px;display:inline-block;width:44px;">'+
+              '<span style="font-size:0.72rem;color:#aaa;">~</span>'+
+              '<input type="text" value="'+(row.useEnd||'')+'" placeholder="18:00" oninput="updateAltUseRow('+i+',\'useEnd\',this.value)" style="'+IS+'max-width:44px;display:inline-block;width:44px;">'+
+            '</td>'+
+            '<td style="border:1px solid #9dd4b4;padding:3px;text-align:center;font-size:0.72rem;color:#aaa;">대기</td>'
+          : '<td colspan="4" style="'+BU+'padding:4px;text-align:center;font-size:0.72rem;color:#c0392b;" colspan="4">발생 미확인 — 사용 불가</td><td style="border:1px solid #e0e0e0;padding:3px;text-align:center;font-size:0.72rem;color:#aaa;">-</td>');
+    }
+    tbody.appendChild(tr);
+  });
+}
+
+function updateAltUseRow(i, field, val) {
+  if (altUseData.rows[i] && !altUseData.rows[i].useConfirmed) altUseData.rows[i][field]=val;
+}
+
+function initAltUseTab() {
+  var name=altData.name||(document.getElementById('alt-name')?document.getElementById('alt-name').value:'');
+  var el=document.getElementById('altuse-name'); if(el) el.value=name;
+  var docEl=document.getElementById('altuse-doc-no'); if(docEl&&altData.docNo) docEl.value=altData.docNo;
+  if (altUseData.rows.length===0) {
+    altUseData.name=name; altUseData.docNo=altData.docNo||'';
+  }
+  renderAltUseTable();
+}
+
+function loadAltForUse() {
+  var name=document.getElementById('altuse-name')?document.getElementById('altuse-name').value:'';
+  var docNo=document.getElementById('altuse-doc-no')?document.getElementById('altuse-doc-no').value.trim():'';
+  if (!name){ showAltUseAlert('성명이 없습니다.','warn'); return; }
+  if (!docNo){ showAltUseAlert('문서번호를 입력해주세요.','warn'); return; }
+  showAltUseAlert('발생 데이터 불러오는 중...','info');
+  gasRun('loadAltData',JSON.stringify({docNo:docNo,name:name}),function(r){
+    if (r.success&&r.data){
+      altUseData={docNo:docNo, name:name, rows:r.data.rows||[]};
+      renderAltUseTable();
+      showAltUseAlert('✅ 발생 데이터를 불러왔습니다.','success');
+    } else showAltUseAlert('데이터를 찾을 수 없습니다.','warn');
+  },function(m){ showAltUseAlert('오류: '+m,'warn'); });
+}
+
+function showAltUseAlert(msg, type) {
+  var area=document.getElementById('alert-area-altuse');
+  if (!area) return;
+  if (!msg){ area.innerHTML=''; return; }
+  area.innerHTML='<div class="alert alert-'+(type||'info')+'" style="margin-bottom:0.8rem">'+msg+'</div>';
+  if (msg) setTimeout(function(){ area.innerHTML=''; }, 4000);
 }
 
 function reRenderApproved(i) {
@@ -1123,31 +1299,50 @@ function loadFromSheet() {
   }, function(m){ showAlert('오류: '+m,'warn'); });
 }
 
-// ===== 대체시수 저장/불러오기 =====
-function saveAltToSheet() {
+// ===== 대체시수 발생 저장 =====
+function saveAltOccToSheet() {
   syncAltFromForm();
   if (!altData.name){ showAltAlert('성명을 먼저 입력하세요.','warn'); return; }
-  const docNo=(altData.docNo||'').trim();
+  var docNo=(altData.docNo||'').trim();
   if (!docNo){ showAltAlert('문서번호를 입력해야 저장됩니다.','warn'); var el=document.getElementById('alt-doc-no'); if(el){el.focus();el.style.borderColor='#c0392b';setTimeout(function(){el.style.borderColor='';},3000);} return; }
   altData.docNo=docNo;
-  // 행 데이터 갱신
-  altData.rows=altData.rows.filter(function(r){ return r.occMonth||r.useMonth; });
-  if (!altData.rows.length){ showAltAlert('입력된 대체시수 내용이 없습니다.','warn'); return; }
+  // 인정시간 계산 반영
+  altData.rows=altData.rows.filter(function(r){ return r.occMonth||r.occDay; });
+  altData.rows.forEach(function(r){ if (!r.occHours) r.occHours=calcApprovedHours(r.occStart,r.occEnd)||''; });
+  if (!altData.rows.length){ showAltAlert('입력된 발생 내용이 없습니다.','warn'); return; }
   showAltAlert('저장 중...','info');
-  gasRun('saveAltData', JSON.stringify(altData),
-    function(r){ r.success ? showAltAlert('✅ 대체시수가 저장되었습니다!','success') : showAltAlert('저장 실패: '+r.message,'warn'); },
+  gasRun('saveAltOccData', JSON.stringify(altData),
+    function(r){ r.success ? showAltAlert('✅ 발생 저장 완료! 선임 확인을 요청하세요.','success') : showAltAlert('저장 실패: '+r.message,'warn'); },
     function(m){ showAltAlert('오류: '+m,'warn'); }
+  );
+}
+
+// ===== 대체시수 사용 저장 =====
+function saveAltUseToSheet() {
+  var name=document.getElementById('altuse-name')?document.getElementById('altuse-name').value:'';
+  var docNo=document.getElementById('altuse-doc-no')?document.getElementById('altuse-doc-no').value.trim():'';
+  if (!name){ showAltUseAlert('성명이 없습니다.','warn'); return; }
+  if (!docNo){ showAltUseAlert('문서번호를 입력해주세요.','warn'); return; }
+  var rows=altUseData.rows||[];
+  var filled=rows.filter(function(r){ return r.occConfirmed&&(r.useMonth||r.useDay); });
+  if (!filled.length){ showAltUseAlert('발생 확인된 행에 사용일시를 입력해주세요.','warn'); return; }
+  showAltUseAlert('사용 저장 중...','info');
+  gasRun('saveAltUseData', JSON.stringify({docNo:docNo, name:name, rows:rows}),
+    function(r){ r.success ? showAltUseAlert('✅ 사용 저장 완료! 선임 확인을 요청하세요.','success') : showAltUseAlert('저장 실패: '+r.message,'warn'); },
+    function(m){ showAltUseAlert('오류: '+m,'warn'); }
   );
 }
 
 function loadAltFromSheet() {
   syncAltFromForm();
-  const name=altData.name;
+  var name=altData.name;
   if (!name){ showAltAlert('먼저 성명을 선택해주세요.','warn'); return; }
   showAltAlert('최근 데이터를 불러오는 중...','info');
   gasRun('loadAltLatestByName', name, function(r){
     if (r.success&&r.data){
       altData=r.data;
+      // occHours 계산 보정
+      altData.rows.forEach(function(row){ if (!row.occHours) row.occHours=calcApprovedHours(row.occStart,row.occEnd)||''; });
       syncAltToForm();
       showAltAlert('✅ '+name+'님의 최근 대체시수 데이터를 불러왔습니다!','success');
     } else showAltAlert('저장된 데이터가 없습니다. ('+name+')','warn');
@@ -1165,22 +1360,46 @@ function saveConfirm() {
     }, function(m){ showAlert('오류: '+m,'warn'); });
 }
 
-// ===== 선임확인 저장 (대체시수) =====
-function saveAltConfirm() {
-  if (!altConfirmData){ showAltAlert('확인할 데이터가 없습니다.','warn'); return; }
-  showAltAlert('저장 중...','info');
-  gasRun('saveAltData', JSON.stringify({
-    docNo: altConfirmData.docNo,
-    name: altConfirmData.name,
-    position: altConfirmData.position,
-    dept: altConfirmData.dept,
-    contact: altConfirmData.contact,
-    rows: altConfirmData.rows
-  }),
-    function(r){
-      if (r.success){ showAltAlert('✅ 대체시수 확인 저장되었습니다!','success'); loadAltDashboard(); }
-      else showAltAlert('실패: '+r.message,'warn');
-    }, function(m){ showAltAlert('오류: '+m,'warn'); });
+// ===== 선임확인 저장 (대체시수 발생확인) =====
+function saveAltOccConfirm() {
+  if (!altConfirmData){ return; }
+  var rows=altConfirmData.rows||[];
+  var calls=0, done=0, failed=0;
+  rows.forEach(function(row,i){
+    calls++;
+    gasRun('confirmAltOccRow', JSON.stringify({
+      docNo:altConfirmData.docNo, name:altConfirmData.name, rowIdx:i, confirmed:!!row.occConfirmed
+    }), function(r){ done++; if(done+failed===calls){ if(!failed){ showAlert2('altconfirm','✅ 발생확인 저장되었습니다!','success'); loadAltDashboard(); } else showAlert2('altconfirm','일부 저장 실패','warn'); } },
+    function(m){ failed++; if(done+failed===calls) showAlert2('altconfirm','오류: '+m,'warn'); });
+  });
+  if (!calls) showAlert2('altconfirm','확인할 데이터가 없습니다.','warn');
+}
+
+// ===== 선임확인 저장 (대체시수 사용확인) =====
+function saveAltUseConfirm() {
+  if (!altConfirmData){ return; }
+  var rows=altConfirmData.rows||[];
+  // 사용 입력이 있는 행 (useMonth 있는 것)만 처리
+  var useRows=rows.filter(function(r){ return r.useMonth; });
+  var calls=useRows.length, done=0, failed=0;
+  if (!calls){ showAlert2('altconfirm','사용 입력된 데이터가 없습니다.','warn'); return; }
+  useRows.forEach(function(row){
+    var i=rows.indexOf(row); // 원본 인덱스 사용
+    gasRun('confirmAltUseRow', JSON.stringify({
+      docNo:altConfirmData.docNo, name:altConfirmData.name, rowIdx:i, confirmed:!!row.useConfirmed
+    }), function(r){ done++; if(done+failed===calls){ if(!failed){ showAlert2('altconfirm','✅ 사용확인 저장되었습니다!','success'); loadAltDashboard(); } else showAlert2('altconfirm','일부 저장 실패','warn'); } },
+    function(m){ failed++; if(done+failed===calls) showAlert2('altconfirm','오류: '+m,'warn'); });
+  });
+}
+
+function showAlert2(viewId, msg, type) {
+  // 알림을 현재 뷰 최상단에 표시
+  var view=document.getElementById('view-'+viewId);
+  if (!view) return;
+  var area=view.querySelector('.alert-area2');
+  if (!area){ area=document.createElement('div'); area.className='alert-area2'; view.insertBefore(area,view.firstChild); }
+  area.innerHTML='<div class="alert alert-'+(type||'info')+'" style="margin-bottom:0.8rem">'+msg+'</div>';
+  setTimeout(function(){ area.innerHTML=''; },4000);
 }
 
 // ===== 뱃지 =====
@@ -1332,23 +1551,28 @@ function renderAltDashboard(list) {
   const filtered=list.filter(function(d){ return getSeniorOf(d.name)===mySeniorName; });
   document.getElementById('alt-stat-total').textContent=filtered.length;
   const pending=filtered.filter(function(d){
-    return d.rows.some(function(r){ return !r.confirmed; });
+    return d.rows.some(function(r){ return !r.occConfirmed; }) || d.rows.some(function(r){ return r.useMonth&&!r.useConfirmed; });
   }).length;
   document.getElementById('alt-stat-pending').textContent=pending;
   document.getElementById('alt-stat-done').textContent=filtered.length-pending;
   if (!filtered.length){ listEl.innerHTML='<div style="text-align:center;padding:2rem;color:var(--text-muted)">신청된 대체시수가 없습니다.</div>'; return; }
   listEl.innerHTML=filtered.map(function(d){
     var total=d.rows.length;
-    var confirmed=d.rows.filter(function(r){ return r.confirmed; }).length;
-    var isDone=total>0&&confirmed>=total;
-    var badge=isDone?'<span class="dash-badge badge-done">확인완료</span>':'<span class="dash-badge badge-pending">확인대기 '+confirmed+'/'+total+'</span>';
+    var occConfirmed=d.rows.filter(function(r){ return r.occConfirmed; }).length;
+    var useTotal=d.rows.filter(function(r){ return r.useMonth; }).length;
+    var useConfirmed=d.rows.filter(function(r){ return r.useConfirmed; }).length;
+    var occDone=occConfirmed>=total&&total>0;
+    var useDone=useTotal===0||(useConfirmed>=useTotal&&useTotal>0);
+    var allDone=occDone&&useDone;
+    var badge=allDone
+      ?'<span class="dash-badge badge-done">전체완료</span>'
+      :'<span class="dash-badge badge-pending">확인대기</span>';
     var safeDocNo=(d.docNo||'').replace(/'/g,'');
     return '<div class="dash-row alt-dash-row" onclick="openFromAltDashboard(\''+d.name+'\',\''+safeDocNo+'\')">'
       +'<div class="dash-avatar" style="background:var(--alt);">'+((d.name||'?')[0])+'</div>'
       +'<div class="dash-info"><div class="dash-name">'+d.name+' <span style="font-size:0.78rem;font-weight:400;color:var(--text-muted)">'+d.position+'</span></div>'
-      +'<div class="dash-sub">NO. '+(d.docNo||'-')+' · '+total+'건</div></div>'
-      +'<div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;">'+badge
-      +'<div style="font-size:0.8rem;color:var(--text-muted)">'+confirmed+' / '+total+' 확인</div></div></div>';
+      +'<div class="dash-sub">NO. '+(d.docNo||'-')+' · 발생 '+occConfirmed+'/'+total+' | 사용 '+useConfirmed+'/'+useTotal+'</div></div>'
+      +'<div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;">'+badge+'</div></div>';
   }).join('');
 }
 function openFromAltDashboard(name, docNo) {
@@ -1367,29 +1591,75 @@ function renderAltConfirmTab() {
   if (!altConfirmData) return;
   var info=document.getElementById('altconfirm-info');
   if (info) info.innerHTML='<b>'+(altConfirmData.name||'-')+'</b> &nbsp;|&nbsp; '+(altConfirmData.position||'-')+' &nbsp;|&nbsp; '+(altConfirmData.dept||'-')+' &nbsp;|&nbsp; NO. '+(altConfirmData.docNo||'-');
-  var tbody=document.getElementById('altconfirm-body');
-  tbody.innerHTML='';
-  (altConfirmData.rows||[]).forEach(function(row,i){
-    var tr=document.createElement('tr');
-    tr.innerHTML=
-      '<td style="border:1px solid #e8d8b8;padding:5px;text-align:center;">'+(row.occMonth||'-')+'월</td>'+
-      '<td style="border:1px solid #e8d8b8;padding:5px;text-align:center;">'+(row.occDay||'-')+'일</td>'+
-      '<td style="border:1px solid #e8d8b8;padding:5px;text-align:center;">'+(row.occDow||'-')+'</td>'+
-      '<td style="border:1px solid #e8d8b8;padding:5px;text-align:center;border-right:2px solid #c8a862;">'+(row.occStart||'-')+' ~ '+(row.occEnd||'-')+'</td>'+
-      '<td style="border:1px solid #e8d8b8;padding:5px;border-right:2px solid #c8a862;">'+(row.occContent||'-')+'</td>'+
-      '<td style="background:#f0f0f0;border:1px solid #ccc;text-align:center;font-size:0.65rem;color:#999;">→</td>'+
-      '<td style="border:1px solid #c8d8e8;padding:5px;text-align:center;">'+(row.useMonth||'-')+'월</td>'+
-      '<td style="border:1px solid #c8d8e8;padding:5px;text-align:center;">'+(row.useDay||'-')+'일</td>'+
-      '<td style="border:1px solid #c8d8e8;padding:5px;text-align:center;">'+(row.useDow||'-')+'</td>'+
-      '<td style="border:1px solid #c8d8e8;padding:5px;text-align:center;border-right:2px solid #c8a862;">'+(row.useStart||'-')+' ~ '+(row.useEnd||'-')+'</td>'+
-      '<td style="border:1px solid #9dd4b4;padding:5px;text-align:center;"><div class="confirm-check '+(row.confirmed?'checked':'')+'" id="alt-cc2-'+i+'" onclick="toggleAltConfirm2('+i+')"></div></td>';
-    tbody.appendChild(tr);
-  });
+
+  // ── 발생확인 테이블 ──
+  var occTbody=document.getElementById('altconfirm-occ-body');
+  if (occTbody) {
+    occTbody.innerHTML='';
+    (altConfirmData.rows||[]).forEach(function(row,i){
+      var locked=row.occConfirmed;
+      var tr=document.createElement('tr');
+      tr.style.background=locked?'#f0fff4':'';
+      tr.innerHTML=
+        '<td style="border:1px solid #e8d8b8;padding:5px;text-align:center;">'+(row.occMonth||'-')+'월</td>'+
+        '<td style="border:1px solid #e8d8b8;padding:5px;text-align:center;">'+(row.occDay||'-')+'일</td>'+
+        '<td style="border:1px solid #e8d8b8;padding:5px;text-align:center;">'+(row.occDow||'-')+'</td>'+
+        '<td style="border:1px solid #e8d8b8;padding:5px;text-align:center;">'+(row.occStart||'-')+' ~ '+(row.occEnd||'-')+'</td>'+
+        '<td style="border:1px solid #e8d8b8;padding:5px;text-align:center;">'+(row.occHours||'-')+'시간</td>'+
+        '<td style="border:1px solid #e8d8b8;padding:5px;">'+(row.occReason||'-')+'</td>'+
+        '<td style="border:1px solid #9dd4b4;padding:5px;text-align:center;">'
+          +(locked
+            ?'<span style="color:#27ae60;font-weight:bold;font-size:1.1rem">✅</span>'
+            :'<div class="confirm-check" id="alt-occ-cc-'+i+'" onclick="toggleAltOccConfirm2('+i+')"></div>')
+        +'</td>';
+      occTbody.appendChild(tr);
+    });
+  }
+
+  // ── 사용확인 테이블 ──
+  var useTbody=document.getElementById('altconfirm-use-body');
+  if (useTbody) {
+    useTbody.innerHTML='';
+    var hasUse=false;
+    (altConfirmData.rows||[]).forEach(function(row,i){
+      if (!row.useMonth) return; // 사용 미입력 행은 건너뜀
+      hasUse=true;
+      var locked=row.useConfirmed;
+      var occOk=row.occConfirmed;
+      var tr=document.createElement('tr');
+      tr.style.background=locked?'#f0f8ff':(occOk?'':'#fff8f0');
+      tr.innerHTML=
+        '<td style="border:1px solid #e8d8b8;padding:5px;text-align:center;color:#999;font-size:0.8rem;">'+(row.occMonth||'-')+'월 '+(row.occDay||'-')+'일</td>'+
+        '<td style="border:1px solid #c8d8e8;padding:5px;text-align:center;">'+(row.useMonth||'-')+'월</td>'+
+        '<td style="border:1px solid #c8d8e8;padding:5px;text-align:center;">'+(row.useDay||'-')+'일</td>'+
+        '<td style="border:1px solid #c8d8e8;padding:5px;text-align:center;">'+(row.useDow||'-')+'</td>'+
+        '<td style="border:1px solid #c8d8e8;padding:5px;text-align:center;">'+(row.useStart||'-')+' ~ '+(row.useEnd||'-')+'</td>'+
+        '<td style="border:1px solid #9dd4b4;padding:5px;text-align:center;">'
+          +(!occOk
+            ?'<span style="color:#aaa;font-size:0.75rem">발생 미확인</span>'
+            :locked
+              ?'<span style="color:#27ae60;font-weight:bold;font-size:1.1rem">✅</span>'
+              :'<div class="confirm-check" id="alt-use-cc-'+i+'" onclick="toggleAltUseConfirm2('+i+')"></div>')
+        +'</td>';
+      useTbody.appendChild(tr);
+    });
+    if (!hasUse) {
+      useTbody.innerHTML='<tr><td colspan="6" style="text-align:center;padding:1.2rem;color:var(--text-muted);font-size:0.88rem">사용 입력된 행이 없습니다.</td></tr>';
+    }
+  }
 }
-function toggleAltConfirm2(i) {
-  if (!altConfirmData) return;
-  altConfirmData.rows[i].confirmed=!altConfirmData.rows[i].confirmed;
-  document.getElementById('alt-cc2-'+i).classList.toggle('checked');
+function toggleAltOccConfirm2(i) {
+  if (!altConfirmData||!altConfirmData.rows[i]) return;
+  altConfirmData.rows[i].occConfirmed=!altConfirmData.rows[i].occConfirmed;
+  var el=document.getElementById('alt-occ-cc-'+i);
+  if (el) el.classList.toggle('checked');
+}
+function toggleAltUseConfirm2(i) {
+  if (!altConfirmData||!altConfirmData.rows[i]) return;
+  if (!altConfirmData.rows[i].occConfirmed) return; // 발생 미확인 행은 사용확인 불가
+  altConfirmData.rows[i].useConfirmed=!altConfirmData.rows[i].useConfirmed;
+  var el=document.getElementById('alt-use-cc-'+i);
+  if (el) el.classList.toggle('checked');
 }
 
 // ===== 인쇄 =====
@@ -1583,14 +1853,23 @@ function renderAltRecordListTable(list) {
   if (!list||!list.length){ tbody.innerHTML='<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--text-muted)">저장된 대체시수가 없습니다.</td></tr>'; return; }
   var html='';
   list.forEach(function(item){
-    var allConfirmed=item.confirmed===item.totalRows&&item.totalRows>0;
-    var confirmText=item.confirmed+'/'+item.totalRows;
-    var confirmColor=allConfirmed?'#27ae60':(item.confirmed>0?'#e67e22':'#aaa');
+    // occConfirmed / useConfirmed 는 getAltRecordList 에서 count로 옴
+    var occTotal=item.totalRows||0;
+    var occConf=typeof item.occConfirmed==='number'?item.occConfirmed:0;
+    var useTotal=typeof item.useTotal==='number'?item.useTotal:0;
+    var useConf=typeof item.useConfirmed==='number'?item.useConfirmed:0;
+    var occDone=occTotal>0&&occConf>=occTotal;
+    var useDone=useTotal===0||(useTotal>0&&useConf>=useTotal);
+    var allDone=occDone&&useDone;
+    var badge=allDone
+      ?'<span style="color:#27ae60;font-weight:bold">✅ 완료</span>'
+      :'<span style="color:#e67e22;font-weight:bold">대기</span>';
+    var subBadge='발생 '+occConf+'/'+occTotal+(useTotal?' | 사용 '+useConf+'/'+useTotal:'');
     html+='<tr style="border-bottom:1px solid var(--border)">'
       +'<td style="padding:8px 10px;text-align:center;font-weight:bold">'+item.docNo+'</td>'
       +'<td style="padding:8px 6px;text-align:center;color:var(--text-muted)">'+(item.dateRange||'-')+'</td>'
-      +'<td style="padding:8px 6px;text-align:center">'+item.totalRows+'건</td>'
-      +'<td style="padding:8px 6px;text-align:center;color:'+confirmColor+';font-weight:bold">'+(allConfirmed?'✅ ':'')+confirmText+'</td>'
+      +'<td style="padding:8px 6px;text-align:center">'+occTotal+'건</td>'
+      +'<td style="padding:8px 6px;text-align:center">'+badge+'<br><span style="font-size:0.75rem;color:var(--text-muted)">'+subBadge+'</span></td>'
       +'<td style="padding:8px 6px;text-align:center"><button onclick="loadAltRecordDetail(\''+item.docNo+'\')" style="padding:0.25rem 0.7rem;border:1px solid var(--alt);border-radius:4px;background:transparent;color:var(--alt);cursor:pointer;font-size:0.8rem">보기</button></td>'
       +'</tr>';
   });
@@ -1614,25 +1893,53 @@ function renderAltRecord(data) {
   var infoEl=document.getElementById('altrecord-info'), summaryEl=document.getElementById('altrecord-summary');
   infoEl.style.display='block';
   summaryEl.innerHTML='<b>'+(data.name||'')+'</b> '+(data.position||'')+' · '+(data.dept||'')+' &nbsp;|&nbsp; 문서번호: <b>'+(data.docNo||'')+'</b>';
-  var tbody=document.getElementById('altrecord-body'); tbody.innerHTML='';
-  var rows=data.rows||[], confirmedCount=0;
-  rows.forEach(function(row){
-    if (row.confirmed) confirmedCount++;
-    var tr=document.createElement('tr'); tr.style.background=row.confirmed?'#f0fff4':'';
-    tr.innerHTML=
-      '<td style="border:1px solid #e8d8b8;text-align:center;padding:6px;">'+(row.occMonth||'-')+'월</td>'+
-      '<td style="border:1px solid #e8d8b8;text-align:center;padding:6px;">'+(row.occDay||'-')+'일</td>'+
-      '<td style="border:1px solid #e8d8b8;text-align:center;padding:6px;">'+(row.occDow||'-')+'</td>'+
-      '<td style="border:1px solid #e8d8b8;text-align:center;padding:6px;">'+(row.occStart||'-')+' ~ '+(row.occEnd||'-')+'</td>'+
-      '<td style="border:1px solid #e8d8b8;padding:6px;border-right:2px solid #ccc;">'+(row.occContent||'-')+'</td>'+
-      '<td style="border:1px solid #c8d8e8;text-align:center;padding:6px;background:#3d6fa0;color:white;">→</td>'+
-      '<td style="border:1px solid #c8d8e8;text-align:center;padding:6px;">'+(row.useMonth||'-')+'월</td>'+
-      '<td style="border:1px solid #c8d8e8;text-align:center;padding:6px;">'+(row.useDay||'-')+'일</td>'+
-      '<td style="border:1px solid #c8d8e8;text-align:center;padding:6px;">'+(row.useDow||'-')+'</td>'+
-      '<td style="border:1px solid #c8d8e8;text-align:center;padding:6px;">'+(row.useStart||'-')+' ~ '+(row.useEnd||'-')+'</td>'+
-      '<td style="text-align:center;border:1px solid #9dd4b4;padding:6px;">'+(row.confirmed?'<span style="color:#27ae60;font-weight:bold">✅ 완료</span>':'<span style="color:#aaa">대기</span>')+'</td>';
-    tbody.appendChild(tr);
-  });
+  var rows=data.rows||[];
+
+  // ── 발생 내역 ──
+  var occTbody=document.getElementById('altrecord-occ-body');
+  if (occTbody) {
+    occTbody.innerHTML='';
+    if (!rows.length) {
+      occTbody.innerHTML='<tr><td colspan="8" style="text-align:center;padding:1rem;color:var(--text-muted)">내역 없음</td></tr>';
+    } else {
+      rows.forEach(function(row){
+        var tr=document.createElement('tr');
+        tr.style.background=row.occConfirmed?'#f0fff4':'';
+        tr.innerHTML=
+          '<td style="border:1px solid #e8d8b8;text-align:center;padding:6px;">'+(row.occMonth||'-')+'월</td>'+
+          '<td style="border:1px solid #e8d8b8;text-align:center;padding:6px;">'+(row.occDay||'-')+'일</td>'+
+          '<td style="border:1px solid #e8d8b8;text-align:center;padding:6px;">'+(row.occDow||'-')+'</td>'+
+          '<td style="border:1px solid #e8d8b8;text-align:center;padding:6px;">'+(row.occStart||'-')+' ~ '+(row.occEnd||'-')+'</td>'+
+          '<td style="border:1px solid #e8d8b8;text-align:center;padding:6px;">'+(row.occHours||'-')+'시간</td>'+
+          '<td style="border:1px solid #e8d8b8;padding:6px;">'+(row.occReason||'-')+'</td>'+
+          '<td style="text-align:center;border:1px solid #9dd4b4;padding:6px;">'+(row.occConfirmed?'<span style="color:#27ae60;font-weight:bold">✅ 확인</span>':'<span style="color:#aaa">대기</span>')+'</td>';
+        occTbody.appendChild(tr);
+      });
+    }
+  }
+
+  // ── 사용 내역 ──
+  var useTbody=document.getElementById('altrecord-use-body');
+  if (useTbody) {
+    useTbody.innerHTML='';
+    var useRows=rows.filter(function(r){ return r.useMonth; });
+    if (!useRows.length) {
+      useTbody.innerHTML='<tr><td colspan="6" style="text-align:center;padding:1rem;color:var(--text-muted)">사용 입력 없음</td></tr>';
+    } else {
+      useRows.forEach(function(row){
+        var tr=document.createElement('tr');
+        tr.style.background=row.useConfirmed?'#f0f8ff':'';
+        tr.innerHTML=
+          '<td style="border:1px solid #e8d8b8;text-align:center;padding:6px;color:#999;font-size:0.8rem;">'+(row.occMonth||'-')+'월 '+(row.occDay||'-')+'일 발생</td>'+
+          '<td style="border:1px solid #c8d8e8;text-align:center;padding:6px;">'+(row.useMonth||'-')+'월</td>'+
+          '<td style="border:1px solid #c8d8e8;text-align:center;padding:6px;">'+(row.useDay||'-')+'일</td>'+
+          '<td style="border:1px solid #c8d8e8;text-align:center;padding:6px;">'+(row.useDow||'-')+'</td>'+
+          '<td style="border:1px solid #c8d8e8;text-align:center;padding:6px;">'+(row.useStart||'-')+' ~ '+(row.useEnd||'-')+'</td>'+
+          '<td style="text-align:center;border:1px solid #9dd4b4;padding:6px;">'+(row.useConfirmed?'<span style="color:#27ae60;font-weight:bold">✅ 확인</span>':'<span style="color:#aaa">대기</span>')+'</td>';
+        useTbody.appendChild(tr);
+      });
+    }
+  }
 }
 
 // ===== 모바일 감지 =====
