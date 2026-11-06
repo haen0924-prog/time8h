@@ -665,10 +665,12 @@ function init() {
 function startWithSavedName() {
   var modeParm=window.APP_MODE||'', seniorParm=window.APP_SENIOR||'';
   if (modeParm==='both'||modeParm==='senior') { if (seniorParm){ enterApp(seniorParm); return; } }
-  var myEmail=window.APP_USER_EMAIL||'';
-  if (myEmail) {
-    var matched=STAFF.find(function(s){ return s.email===myEmail; });
-    if (matched) { if (matched.mode==='both'||matched.mode==='senior'){ enterApp(matched.name); } else { enterStaffMode(); } return; }
+  // localStorage 저장된 이름으로 선임 여부 판단
+  var savedName = ls.get('sisuje_myname', '');
+  if (savedName) {
+    var s = STAFF.find(function(x){ return x.name===savedName; });
+    if (s && (s.mode==='both'||s.mode==='senior')) { enterApp(savedName); return; }
+    if (s) { enterStaffMode(); return; }
   }
   enterStaffMode();
 }
@@ -681,24 +683,70 @@ function enterStaffMode() {
   document.getElementById('view-write').classList.add('active');
   document.querySelectorAll('#tabs-staff .tab')[0].classList.add('active');
 
-  var myEmail=MY_EMAIL||'';
-  var matched=myEmail ? STAFF.find(function(s){ return s.email===myEmail; }) : null;
-  if (matched) {
-    document.getElementById('name-select').value=matched.name;
-    document.getElementById('alt-name').value=matched.name;
-    onNameSelect();
-    autoLoadLatest(matched.name);
+  // localStorage에 저장된 이름 확인
+  var savedName = ls.get('sisuje_myname', '');
+  if (savedName && STAFF.find(function(s){ return s.name===savedName; })) {
+    applyStaffName(savedName);
   } else {
-    var msg=myEmail
-      ? myEmail+'<br><div style="color:#aaa;font-size:0.78rem;margin-top:0.5rem">관리자에게 이메일 등록을 요청하세요.</div>'
-      : '구글 계정 정보를 가져올 수 없습니다.<br><div style="color:#aaa;font-size:0.78rem;margin-top:0.5rem">GAS 배포 설정에서 "실행 계정: 사용자 본인"으로 변경하세요.</div>';
-    document.body.innerHTML=
-      '<div style="display:flex;align-items:center;justify-content:center;height:100vh">'+
-      '<div style="text-align:center;padding:2rem">'+
-      '<div style="font-size:3rem;margin-bottom:1rem">🚫</div>'+
-      '<div style="font-size:1.1rem;font-weight:bold;color:#c0392b;margin-bottom:0.5rem">접근 권한이 없습니다</div>'+
-      '<div style="color:#888;font-size:0.82rem;background:#f5f5f5;padding:0.5rem 1rem;border-radius:6px">'+msg+'</div>'+
-      '</div></div>';
+    showNameSelectView();
+  }
+}
+
+// 이름 선택 화면 표시
+function showNameSelectView() {
+  document.querySelectorAll('.view, .header, .tabs').forEach(function(el){ el.style.display='none'; });
+  var wrap = document.getElementById('name-select-wrap');
+  if (!wrap) {
+    wrap = document.createElement('div');
+    wrap.id = 'name-select-wrap';
+    wrap.style.cssText = 'max-width:400px;margin:60px auto;padding:2rem;background:#fff;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.12);font-family:inherit;';
+    document.body.appendChild(wrap);
+  }
+  var staffNames = STAFF.filter(function(s){ return !s.mode || s.mode==='staff' || s.mode==='both'; });
+  wrap.innerHTML =
+    '<h2 style="font-size:1.2rem;margin-bottom:0.3rem;color:#2c3e50">👤 본인 이름을 선택하세요</h2>'+
+    '<p style="font-size:0.82rem;color:#888;margin-bottom:1.2rem">한 번 선택하면 이 기기에 저장됩니다.</p>'+
+    '<div style="display:flex;flex-direction:column;gap:0.5rem;max-height:60vh;overflow-y:auto;">'+
+    staffNames.map(function(s){
+      return '<button onclick="confirmNameSelect(\''+s.name+'\')" style="padding:0.7rem 1rem;background:#f8f9fa;border:1.5px solid #dee2e6;border-radius:8px;font-size:0.95rem;cursor:pointer;text-align:left;color:#2c3e50;">'+
+        s.name+' <span style="font-size:0.78rem;color:#888;">'+s.position+'</span></button>';
+    }).join('')+
+    '</div>';
+  wrap.style.display = 'block';
+}
+
+function confirmNameSelect(name) {
+  if (!confirm('본인이 맞습니까?\n\n[ '+name+' ]\n\n확인을 누르면 이 기기에 저장됩니다.')) return;
+  ls.set('sisuje_myname', name);
+  var wrap = document.getElementById('name-select-wrap');
+  if (wrap) wrap.style.display = 'none';
+  document.querySelectorAll('.view, .header, .tabs').forEach(function(el){ el.style.display=''; });
+  applyStaffName(name);
+}
+
+function applyStaffName(name) {
+  document.getElementById('name-select').value = name;
+  document.getElementById('alt-name').value = name;
+  onNameSelect();
+  autoLoadLatest(name);
+  // 헤더에 이름 표시 + 초기화 버튼
+  var badge = document.getElementById('login-badge');
+  if (badge) badge.textContent = '🔒 ' + name;
+  // 이름 변경 버튼 추가 (헤더)
+  var hdr = document.querySelector('.header');
+  if (hdr && !document.getElementById('change-name-btn')) {
+    var btn = document.createElement('button');
+    btn.id = 'change-name-btn';
+    btn.textContent = '👤 이름 변경';
+    btn.style.cssText = 'font-size:0.72rem;padding:3px 9px;background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:6px;cursor:pointer;margin-left:0.4rem;';
+    btn.onclick = function(){
+      if (!confirm('이름 선택을 초기화하시겠습니까?')) return;
+      ls.del('sisuje_myname');
+      location.reload();
+    };
+    // 기존 버튼 div에 추가
+    var btnDiv = hdr.querySelector('div');
+    if (btnDiv) btnDiv.appendChild(btn);
   }
 }
 
