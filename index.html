@@ -1141,8 +1141,8 @@ function renderWriteTable() {
       const monthSel=MONTH_OPTIONS.map(o=>`<option value="${o}"${o==row.month?' selected':''}>${o||'월'}</option>`).join('');
       const daySel=DAY_OPTIONS.map(o=>`<option value="${o}"${o==row.day?' selected':''}>${o||'일'}</option>`).join('');
       tr.innerHTML=`<td class="hour-num">${i+1}</td>
-        <td><select onchange="updateRow(${i},'month',this.value)" style="width:52px">${monthSel}</select></td>
-        <td><select onchange="updateRow(${i},'day',this.value)" style="width:52px">${daySel}</select></td>
+        <td><select onchange="updateRow(${i},'month',this.value)" style="width:62px">${monthSel}</select></td>
+        <td><select onchange="updateRow(${i},'day',this.value)" style="width:62px">${daySel}</select></td>
         <td><div class="time-inputs">
           <select id="ts-${i}" onchange="onTimeStart(${i},this.value)" style="width:78px">${startOpts}</select>
           <span class="time-sep">~</span>
@@ -1197,7 +1197,7 @@ function renderAltTable() {
   if (!tbody) return;
   tbody.innerHTML='';
   var B='border:1px solid #e8d8b8;';
-  var SS='border:none;background:transparent;text-align:center;font-size:0.75rem;font-family:inherit;box-sizing:border-box;width:52px;min-width:52px;padding:1px 2px;';
+  var SS='border:none;background:transparent;text-align:center;font-size:0.75rem;font-family:inherit;box-sizing:border-box;width:70px;min-width:70px;padding:1px 2px;';
   altData.rows.forEach(function(row, i) {
     var locked=row.occConfirmed;
     var tr=document.createElement('tr');
