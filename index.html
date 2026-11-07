@@ -183,6 +183,7 @@
 <div class="header">
   <h1>시수 보고 시스템</h1>
   <div style="display:flex;gap:0.5rem;flex-wrap:wrap;justify-content:center">
+    <span id="header-name-badge" style="display:none;font-size:0.78rem;color:#fff;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.35);border-radius:6px;padding:4px 10px;font-weight:600;"></span>
     <button onclick="copyLink()" style="font-size:0.75rem;padding:4px 10px;background:rgba(255,255,255,0.2);color:#fff;border:1px solid rgba(255,255,255,0.4);border-radius:6px;cursor:pointer">🔗 직원 링크 복사</button>
     <button onclick="openAdmin()" style="font-size:0.75rem;padding:4px 10px;background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.4);border-radius:6px;cursor:pointer">⚙️ 관리자</button>
     <button onclick="disconnectGas()" style="font-size:0.75rem;padding:4px 10px;background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:6px;cursor:pointer">🔌 연결 해제</button>
@@ -939,14 +940,21 @@ function confirmNameSelect(name) {
   init();
 }
 
+function setHeaderName(name) {
+  var el = document.getElementById('header-name-badge');
+  if (!el) return;
+  if (name) { el.textContent = '👤 ' + name; el.style.display = ''; }
+  else { el.textContent = ''; el.style.display = 'none'; }
+}
+
 function applyStaffName(name) {
   document.getElementById('name-select').value = name;
   document.getElementById('alt-name').value = name;
   onNameSelect();
   autoLoadLatest(name);
-  // 헤더에 이름 표시 + 초기화 버튼
+  setHeaderName(name);
   var badge = document.getElementById('login-badge');
-  if (badge) badge.textContent = '🔒 ' + name;
+  if (badge) badge.textContent = '';
 }
 
 function enterApp(name) {
@@ -960,6 +968,7 @@ function enterApp(name) {
     document.getElementById('view-dashboard').classList.add('active');
     document.querySelectorAll('#tabs-senior .tab')[0].classList.add('active');
     window.APP_SENIOR=name;
+    setHeaderName(name);
     loadDashboard();
     startAutoRefresh();
   } else if (effectiveMode==='both') {
@@ -967,6 +976,7 @@ function enterApp(name) {
     document.getElementById('view-write').classList.add('active');
     document.querySelectorAll('#tabs-both .tab')[0].classList.add('active');
     window.APP_SENIOR=name;
+    setHeaderName(name);
     document.getElementById('name-select').value=name;
     document.getElementById('alt-name').value=name;
     onNameSelect();
@@ -1131,8 +1141,8 @@ function renderWriteTable() {
       const monthSel=MONTH_OPTIONS.map(o=>`<option value="${o}"${o==row.month?' selected':''}>${o||'월'}</option>`).join('');
       const daySel=DAY_OPTIONS.map(o=>`<option value="${o}"${o==row.day?' selected':''}>${o||'일'}</option>`).join('');
       tr.innerHTML=`<td class="hour-num">${i+1}</td>
-        <td><select onchange="updateRow(${i},'month',this.value)" style="width:46px">${monthSel}</select></td>
-        <td><select onchange="updateRow(${i},'day',this.value)" style="width:46px">${daySel}</select></td>
+        <td><select onchange="updateRow(${i},'month',this.value)" style="width:52px">${monthSel}</select></td>
+        <td><select onchange="updateRow(${i},'day',this.value)" style="width:52px">${daySel}</select></td>
         <td><div class="time-inputs">
           <select id="ts-${i}" onchange="onTimeStart(${i},this.value)" style="width:78px">${startOpts}</select>
           <span class="time-sep">~</span>
@@ -1187,7 +1197,7 @@ function renderAltTable() {
   if (!tbody) return;
   tbody.innerHTML='';
   var B='border:1px solid #e8d8b8;';
-  var SS='border:none;background:transparent;text-align:center;font-size:0.75rem;font-family:inherit;box-sizing:border-box;width:100%;padding:1px 0;';
+  var SS='border:none;background:transparent;text-align:center;font-size:0.75rem;font-family:inherit;box-sizing:border-box;width:52px;min-width:52px;padding:1px 2px;';
   altData.rows.forEach(function(row, i) {
     var locked=row.occConfirmed;
     var tr=document.createElement('tr');
