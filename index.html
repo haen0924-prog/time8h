@@ -1133,12 +1133,30 @@ function updateProgress() {
 // ===== 대체시수 테이블 (발생 전용) =====
 var DOW_OPTIONS = ['','월','화','수','목','금','토','일'];
 
+// 월 옵션 (1~12)
+var MONTH_OPTIONS = ['','1','2','3','4','5','6','7','8','9','10','11','12'];
+// 일 옵션 (1~31)
+var DAY_OPTIONS = (function(){ var a=['']; for(var d=1;d<=31;d++) a.push(String(d)); return a; })();
+// 시간 옵션 (30분 단위, 06:00~23:30)
+var TIME_OPTIONS = (function(){
+  var a=[''];
+  for(var h=0;h<24;h++){
+    a.push(String(h).padStart(2,'0')+':00');
+    a.push(String(h).padStart(2,'0')+':30');
+  }
+  return a;
+})();
+
+function selOpt(opts, val) {
+  return opts.map(function(o){ return '<option value="'+o+'"'+(o===val?' selected':'')+'>'+o+'</option>'; }).join('');
+}
+
 function renderAltTable() {
   var tbody=document.getElementById('alt-body');
   if (!tbody) return;
   tbody.innerHTML='';
   var B='border:1px solid #e8d8b8;';
-  var IS='border:none;background:transparent;text-align:center;font-size:0.68rem;font-family:inherit;box-sizing:border-box;width:100%;padding:2px 1px;';
+  var SS='border:none;background:transparent;text-align:center;font-size:0.68rem;font-family:inherit;box-sizing:border-box;width:100%;padding:1px 0;';
   altData.rows.forEach(function(row, i) {
     var locked=row.occConfirmed;
     var tr=document.createElement('tr');
@@ -1156,22 +1174,33 @@ function renderAltTable() {
         '<td style="border:1px solid #9dd4b4;padding:4px 3px;text-align:center;"><span style="font-size:0.72rem;color:#2d7a4f;font-weight:600;">✓확인</span></td>';
     } else {
       var dowOpt=DOW_OPTIONS.map(function(d){ return '<option value="'+d+'"'+(row.occDow===d?' selected':'')+'>'+d+'</option>'; }).join('');
+      var startVal=fmtTime(row.occStart), endVal=fmtTime(row.occEnd);
       tr.innerHTML=
         '<td style="'+B+'padding:3px;text-align:center;font-weight:600;color:#555;font-size:0.68rem;">'+(i+1)+'</td>'+
-        '<td style="'+B+'padding:2px;"><input type="text" inputmode="numeric" maxlength="2" value="'+(row.occMonth||'')+'" placeholder="월" oninput="updateAltRow('+i+',\'occMonth\',this.value)" style="'+IS+'"></td>'+
-        '<td style="'+B+'padding:2px;"><input type="text" inputmode="numeric" maxlength="2" value="'+(row.occDay||'')+'" placeholder="일" oninput="updateAltRow('+i+',\'occDay\',this.value)" style="'+IS+'"></td>'+
-        '<td style="'+B+'padding:2px;"><select onchange="updateAltRow('+i+',\'occDow\',this.value)" style="'+IS+'">'+dowOpt+'</select></td>'+
-        '<td style="'+B+'padding:2px;white-space:nowrap;text-align:center;">'+
-          '<input type="text" value="'+fmtTime(row.occStart)+'" placeholder="시작" oninput="updateAltRow('+i+',\'occStart\',this.value);reRenderApproved('+i+')" style="'+IS+'max-width:46px;display:inline-block;width:46px;">'+
+        '<td style="'+B+'padding:1px;"><select onchange="updateAltRow('+i+',\'occMonth\',this.value)" style="'+SS+'">'+selOpt(MONTH_OPTIONS,row.occMonth||'')+'</select></td>'+
+        '<td style="'+B+'padding:1px;"><select onchange="updateAltRow('+i+',\'occDay\',this.value);autoFillDow('+i+')" style="'+SS+'">'+selOpt(DAY_OPTIONS,row.occDay||'')+'</select></td>'+
+        '<td style="'+B+'padding:1px;"><select onchange="updateAltRow('+i+',\'occDow\',this.value)" style="'+SS+'">'+dowOpt+'</select></td>'+
+        '<td style="'+B+'padding:1px;white-space:nowrap;text-align:center;">'+
+          '<select onchange="updateAltRow('+i+',\'occStart\',this.value);reRenderApproved('+i+')" style="'+SS+'display:inline-block;width:52px;">'+selOpt(TIME_OPTIONS,startVal)+'</select>'+
           '<span style="font-size:0.72rem;color:#aaa;">~</span>'+
-          '<input type="text" value="'+fmtTime(row.occEnd)+'" placeholder="종료" oninput="updateAltRow('+i+',\'occEnd\',this.value);reRenderApproved('+i+')" style="'+IS+'max-width:46px;display:inline-block;width:46px;">'+
+          '<select onchange="updateAltRow('+i+',\'occEnd\',this.value);reRenderApproved('+i+')" style="'+SS+'display:inline-block;width:52px;">'+selOpt(TIME_OPTIONS,endVal)+'</select>'+
         '</td>'+
         '<td style="'+B+'padding:2px;text-align:center;font-weight:600;color:#8a5e00;font-size:0.68rem;" id="alt-approved-'+i+'">'+(approved||'')+'</td>'+
-        '<td style="'+B+'padding:2px;"><input type="text" value="'+(row.occReason||'')+'" placeholder="눌러서 작성하기" oninput="updateAltRow('+i+',\'occReason\',this.value)" style="'+IS+'font-size:0.60rem;"></td>'+
+        '<td style="'+B+'padding:2px;"><input type="text" value="'+(row.occReason||'')+'" placeholder="눌러서 작성하기" oninput="updateAltRow('+i+',\'occReason\',this.value)" style="'+SS+'font-size:0.60rem;"></td>'+
         '<td style="border:1px solid #9dd4b4;padding:2px;text-align:center;font-size:0.72rem;color:#aaa;">대기</td>';
     }
     tbody.appendChild(tr);
   });
+}
+
+function autoFillDow(i) {
+  var row=altData.rows[i]; if (!row) return;
+  var yr=new Date().getFullYear();
+  var m=parseInt(row.occMonth), d=parseInt(row.occDay);
+  if (!m||!d) return;
+  var dow=['일','월','화','수','목','금','토'][new Date(yr,m-1,d).getDay()];
+  updateAltRow(i,'occDow',dow);
+  renderAltTable();
 }
 
 // ===== 대체시수 사용 테이블 =====
