@@ -364,9 +364,9 @@
     <div class="table-scroll-wrap">
       <table class="alt-table" id="alt-table" style="font-size:0.70rem;">
         <colgroup>
-          <col style="width:28px"><col style="width:28px"><col style="width:28px"><col style="width:36px">
-          <col style="width:96px"><col style="width:40px"><col style="width:80px">
-          <col style="width:48px">
+          <col style="width:26px"><col style="width:40px"><col style="width:40px"><col style="width:36px">
+          <col style="width:110px"><col style="width:44px"><col>
+          <col style="width:44px">
         </colgroup>
         <thead>
           <tr>
@@ -375,9 +375,9 @@
             <th style="background:#b88030;">일</th>
             <th style="background:#b88030;">요일</th>
             <th style="background:#b88030;">시간 (시작~종료)</th>
-            <th style="background:#b88030;">인정<br>시간</th>
+            <th style="background:#b88030;">인정시간</th>
             <th style="background:#b88030;">사유</th>
-            <th style="background:#2d7a4f;">발생<br>확인</th>
+            <th style="background:#2d7a4f;">발생확인</th>
           </tr>
         </thead>
         <tbody id="alt-body"></tbody>
@@ -1197,7 +1197,7 @@ function renderAltTable() {
   if (!tbody) return;
   tbody.innerHTML='';
   var B='border:1px solid #e8d8b8;';
-  var SS='border:none;background:transparent;text-align:center;font-size:0.75rem;font-family:inherit;box-sizing:border-box;width:70px;min-width:70px;padding:1px 2px;';
+  var SS='border:none;background:transparent;text-align:center;font-size:0.75rem;font-family:inherit;box-sizing:border-box;width:38px;min-width:38px;padding:1px 0;';
   altData.rows.forEach(function(row, i) {
     var locked=row.occConfirmed;
     var tr=document.createElement('tr');
@@ -1227,7 +1227,7 @@ function renderAltTable() {
           '<select onchange="updateAltRow('+i+',\'occEnd\',this.value);reRenderApproved('+i+')" style="'+SS+'display:inline-block;width:52px;">'+selOpt(TIME_OPTIONS,endVal)+'</select>'+
         '</td>'+
         '<td style="'+B+'padding:2px;text-align:center;font-weight:600;color:#8a5e00;font-size:0.75rem;" id="alt-approved-'+i+'">'+(approved||'')+'</td>'+
-        '<td style="'+B+'padding:2px;"><input type="text" value="'+(row.occReason||'')+'" placeholder="눌러서 작성하기" oninput="updateAltRow('+i+',\'occReason\',this.value)" style="'+SS+'font-size:0.68rem;"></td>'+
+        '<td style="'+B+'padding:2px;"><input type="text" value="'+(row.occReason||'')+'" placeholder="눌러서 작성하기" oninput="updateAltRow('+i+',\'occReason\',this.value)" style="border:none;background:transparent;font-size:0.68rem;font-family:inherit;width:100%;box-sizing:border-box;padding:1px 2px;"></td>'+
         '<td style="border:1px solid #9dd4b4;padding:2px;text-align:center;font-size:0.72rem;color:#aaa;">대기</td>';
     }
     tbody.appendChild(tr);
