@@ -120,9 +120,10 @@
   /* 인쇄 */
   @media print {
     body{background:white;}
-    .header,.tabs,.no-print{display:none !important;}
+    .header,.tabs,.no-print,.sidebar,.app-layout{display:none !important;}
     .view{display:none !important;}
     #print-view{display:block !important;}
+    #alt-print-wrap{display:block !important;}
     .print-doc{font-family:'맑은 고딕','Malgun Gothic','Noto Sans KR',sans-serif;font-size:9.5pt;width:100%;margin:0;padding:8mm 10mm;color:black;}
     .pt-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:3mm;}
     .pt-docno{font-size:9pt;font-weight:400;}
@@ -147,9 +148,26 @@
     .pt-declaration{text-align:center;margin:4mm 0;font-size:10.5pt;}
     .pt-signline{display:flex;justify-content:space-between;align-items:baseline;margin-top:3mm;font-size:9.5pt;}
     .pt-addressee{text-align:center;margin-top:6mm;font-size:12pt;font-weight:700;letter-spacing:0.1em;border-top:1px solid black;padding-top:4mm;}
+    /* 대체시수 발생 인쇄 */
+    #alt-print-wrap { display:block !important; }
+    .alt-print-page { font-family:'맑은 고딕','Malgun Gothic','Noto Sans KR',sans-serif; font-size:9.5pt; color:black; padding:8mm 12mm; page-break-after:always; }
+    .alt-print-page:last-child { page-break-after:auto; }
+    .alt-pt-title { font-size:16pt; font-weight:700; text-align:center; letter-spacing:0.15em; margin-bottom:4mm; }
+    .alt-pt-info { width:100%; border-collapse:collapse; margin-bottom:3mm; font-size:9pt; }
+    .alt-pt-info td { border:1px solid black; padding:3px 7px; }
+    .alt-pt-info .lb { background:#f0f0f0; font-weight:700; text-align:center; width:16mm; }
+    .alt-pt-table { width:100%; border-collapse:collapse; font-size:9pt; }
+    .alt-pt-table th { border:1px solid black; padding:4px 3px; text-align:center; background:#f0f0f0; font-weight:700; white-space:nowrap; }
+    .alt-pt-table td { border:1px solid black; padding:4px 3px; text-align:center; height:9mm; vertical-align:middle; }
+    .alt-pt-table td.reason { text-align:left; padding-left:5px; }
+    .alt-pt-sign { margin-top:5mm; font-size:9pt; display:flex; justify-content:flex-end; gap:12mm; }
+    .alt-pt-sign-box { text-align:center; }
+    .alt-pt-sign-box .role { font-weight:700; border-bottom:1px solid black; padding-bottom:1mm; margin-bottom:8mm; }
+    .alt-pt-sign-box .name { border-bottom:1px solid black; padding:0 8mm; }
+    .alt-pt-page-info { text-align:right; font-size:8pt; color:#555; margin-bottom:2mm; }
     @page { size: A4; margin: 10mm 12mm; }
   }
-  @media screen { #print-view { display:none; } }
+  @media screen { #print-view { display:none; } #alt-print-wrap { display:none; } }
 
   body.mobile { font-size:32px !important; }
   body.mobile .header { padding:20px 24px !important; }
@@ -335,8 +353,9 @@
     🔄 <strong>대체시수 발생</strong>: 근무시간 외 초과 근무 일시와 인정시간을 입력하고 저장하면 선임이 확인합니다.
   </div>
 
-  <div class="top-btn-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem;margin-bottom:0.8rem;">
+  <div class="top-btn-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:0.5rem;margin-bottom:0.8rem;">
     <button class="btn btn-alt" onclick="saveAltOccToSheet()" style="justify-content:center;padding:12px 6px;">💾 발생 저장</button>
+    <button class="btn btn-accent" onclick="printAltOcc()" style="justify-content:center;padding:12px 6px;">🖨️ 인쇄</button>
     <button class="btn btn-outline" onclick="loadAltFromSheet()" style="justify-content:center;padding:12px 6px;">🔄 불러오기</button>
     <button class="btn btn-outline" onclick="resetAltForm()" style="justify-content:center;padding:12px 6px;border-color:#c0392b;color:#c0392b;">🗑️ 초기화</button>
   </div>
@@ -661,6 +680,9 @@
 
 </div><!-- /content-area -->
 </div><!-- /app-layout -->
+
+<!-- ========== 대체시수 발생 인쇄 영역 ========== -->
+<div id="alt-print-wrap" style="display:none;"></div>
 
 <!-- ========== [10] 관리자 화면 ========== -->
 <div id="admin-wrap" style="display:none;max-width:700px;margin:40px auto;padding:1.5rem;font-family:inherit;">
@@ -1891,6 +1913,78 @@ function buildDocHTML(cfg, dateStr, forPrint) {
   </div>`;
 }
 function doPrint(){ window.print(); }
+
+// ===== 대체시수 발생 인쇄 =====
+function printAltOcc() {
+  var rows = altData.rows.filter(function(r){ return r.occMonth||r.occDay||r.occStart; });
+  if (!rows.length) { alert('인쇄할 발생 내역이 없습니다.'); return; }
+  var name = altData.name||'', pos = altData.position||'', dept = altData.dept||'', docNo = altData.docNo||'';
+  var ROWS_PER_PAGE = 8;
+  var pages = [];
+  for (var p=0; p<rows.length; p+=ROWS_PER_PAGE) {
+    pages.push(rows.slice(p, p+ROWS_PER_PAGE));
+  }
+  var totalPages = pages.length;
+  var html = pages.map(function(pageRows, pi) {
+    var startNum = pi * ROWS_PER_PAGE + 1;
+    var tbodyRows = pageRows.map(function(r, ri) {
+      var num = startNum + ri;
+      var approved = r.occHours || calcApprovedHours(r.occStart, r.occEnd);
+      return '<tr>'+
+        '<td>'+num+'</td>'+
+        '<td>'+(r.occMonth||'')+'</td>'+
+        '<td>'+(r.occDay||'')+'</td>'+
+        '<td>'+(r.occDow||'')+'</td>'+
+        '<td>'+(fmtTime(r.occStart)||'')+' ~ '+(fmtTime(r.occEnd)||'')+'</td>'+
+        '<td>'+(approved||'')+'</td>'+
+        '<td class="reason">'+(r.occReason||'')+'</td>'+
+        '<td>'+(r.occConfirmed?'✓':'')+'</td>'+
+      '</tr>';
+    }).join('');
+    return '<div class="alt-print-page">'+
+      '<div class="alt-pt-title">대체시수 발생 신청서</div>'+
+      (totalPages>1?'<div class="alt-pt-page-info">'+(pi+1)+' / '+totalPages+' 페이지</div>':'')+
+      '<table class="alt-pt-info">'+
+        '<tr>'+
+          '<td class="lb">성 명</td><td>'+name+'</td>'+
+          '<td class="lb">직 위</td><td>'+pos+'</td>'+
+          '<td class="lb">부 서</td><td>'+dept+'</td>'+
+          '<td class="lb">문서번호</td><td>'+docNo+'</td>'+
+        '</tr>'+
+      '</table>'+
+      '<table class="alt-pt-table">'+
+        '<thead><tr>'+
+          '<th style="width:7mm">번호</th>'+
+          '<th style="width:9mm">월</th>'+
+          '<th style="width:9mm">일</th>'+
+          '<th style="width:9mm">요일</th>'+
+          '<th style="width:30mm">시간 (시작~종료)</th>'+
+          '<th style="width:14mm">인정시간</th>'+
+          '<th>사유</th>'+
+          '<th style="width:14mm">발생확인</th>'+
+        '</tr></thead>'+
+        '<tbody>'+tbodyRows+'</tbody>'+
+      '</table>'+
+      (pi===totalPages-1?
+        '<div class="alt-pt-sign">'+
+          '<div class="alt-pt-sign-box"><div class="role">직 원</div><div class="name">'+name+'</div></div>'+
+          '<div class="alt-pt-sign-box"><div class="role">선 임</div><div class="name">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div></div>'+
+        '</div>' : '')+
+    '</div>';
+  }).join('');
+
+  var wrap = document.getElementById('alt-print-wrap');
+  wrap.innerHTML = html;
+  // 현재 뷰 숨기고 인쇄
+  document.getElementById('app-layout').style.display='none';
+  wrap.style.display='block';
+  setTimeout(function(){
+    window.print();
+    wrap.style.display='none';
+    wrap.innerHTML='';
+    document.getElementById('app-layout').style.display='flex';
+  }, 300);
+}
 
 // ===== 내 시수 확인 탭 =====
 var myRecordAllList=[];
