@@ -20,11 +20,17 @@
   .header{background:var(--primary);color:white;padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(0,0,0,0.2);}
   .header h1{font-family:'Noto Serif KR',serif;font-size:1.2rem;font-weight:600;letter-spacing:0.05em;}
   .header-badge{font-size:0.72rem;background:rgba(255,255,255,0.15);padding:4px 10px;border-radius:20px;}
-  .tabs{display:flex;background:var(--primary);padding:0 1.5rem;gap:4px;border-bottom:2px solid var(--accent);flex-wrap:wrap;}
-  .tab{padding:0.65rem 1.2rem;font-size:0.85rem;color:rgba(255,255,255,0.6);cursor:pointer;border-radius:6px 6px 0 0;transition:all 0.2s;font-weight:400;border:none;background:none;font-family:inherit;}
-  .tab.active{background:var(--accent);color:var(--primary);font-weight:700;}
-  .tab.tab-alt.active{background:#e8a830;color:#3d2000;font-weight:700;}
-  .tab:hover:not(.active){color:rgba(255,255,255,0.9);}
+  /* ===== 사이드바 레이아웃 ===== */
+  .tabs{display:none;} /* 기존 상단탭 숨김 */
+  .app-layout{display:flex;min-height:calc(100vh - 60px);}
+  .sidebar{width:190px;min-width:190px;background:var(--primary);padding:0.8rem 0;display:flex;flex-direction:column;gap:0;border-right:2px solid var(--accent);}
+  .sidebar-group{padding:0.4rem 0.8rem 0.2rem;font-size:0.68rem;color:rgba(255,255,255,0.4);letter-spacing:0.08em;text-transform:uppercase;font-weight:600;}
+  .sidebar-divider{border:none;border-top:1px solid rgba(255,255,255,0.12);margin:0.4rem 0.8rem;}
+  .tab{display:block;width:100%;text-align:left;padding:0.6rem 1rem;font-size:0.82rem;color:rgba(255,255,255,0.65);cursor:pointer;border:none;background:none;font-family:inherit;border-radius:0;transition:all 0.15s;border-left:3px solid transparent;}
+  .tab.active{background:rgba(255,255,255,0.12);color:white;font-weight:700;border-left:3px solid var(--accent);}
+  .tab.tab-alt.active{border-left-color:#e8a830;color:#ffd88a;}
+  .tab:hover:not(.active){background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.9);}
+  .content-area{flex:1;overflow-x:auto;}
   .view{display:none;padding:1.5rem;max-width:900px;margin:0 auto;}
   .view.active{display:block;}
   .card{background:var(--surface);border-radius:8px;border:1px solid var(--border);padding:1.2rem 1.4rem;margin-bottom:1rem;box-shadow:var(--shadow);}
@@ -95,7 +101,7 @@
   .alt-row.cols4{grid-template-columns:repeat(4,1fr);}
 
   /* ===== 대체시수 테이블 ===== */
-  .alt-table{width:100%;border-collapse:collapse;font-size:0.70rem;table-layout:auto;}
+  .alt-table{width:100%;border-collapse:collapse;font-size:0.75rem;table-layout:auto;}
   .alt-table th{background:var(--alt);color:white;padding:3px 2px;text-align:center;font-weight:500;font-size:0.65rem;white-space:nowrap;}
   .alt-table th:first-child{border-radius:5px 0 0 0;} .alt-table th:last-child{border-radius:0 5px 0 0;}
   .alt-table td{border:1px solid #e8d8b8;padding:3px 2px;text-align:center;vertical-align:middle;white-space:nowrap;}
@@ -149,8 +155,12 @@
   body.mobile .header { padding:20px 24px !important; }
   body.mobile .header h1 { font-size:36px !important; }
   body.mobile .header-badge { font-size:24px !important; padding:8px 16px !important; }
-  body.mobile .tabs { padding:0 16px !important; }
-  body.mobile .tab { font-size:28px !important; padding:16px 20px !important; }
+  body.mobile .sidebar { width:100% !important; min-width:unset !important; flex-direction:row !important; overflow-x:auto !important; border-right:none !important; border-bottom:2px solid var(--accent) !important; padding:0 !important; flex-wrap:nowrap !important; }
+  body.mobile .app-layout { flex-direction:column !important; }
+  body.mobile .sidebar-group { display:none !important; }
+  body.mobile .sidebar-divider { display:none !important; }
+  body.mobile .tab { font-size:24px !important; padding:14px 16px !important; white-space:nowrap !important; border-left:none !important; border-bottom:3px solid transparent !important; }
+  body.mobile .tab.active { border-left:none !important; border-bottom:3px solid var(--accent) !important; }
   body.mobile .card { padding:20px 24px !important; margin-bottom:16px !important; }
   body.mobile .card-title { font-size:26px !important; margin-bottom:16px !important; }
   body.mobile label { font-size:26px !important; }
@@ -179,27 +189,45 @@
   </div>
 </div>
 
-<!-- 직원 탭 -->
-<div class="tabs" id="tabs-staff">
-  <button class="tab active" onclick="switchTab('write')">✏️ 작성</button>
+<!-- 사이드바 + 콘텐츠 레이아웃 -->
+<div class="app-layout" id="app-layout" style="display:none">
+
+<!-- 직원 사이드바 -->
+<nav class="sidebar" id="tabs-staff" style="display:none">
+  <div class="sidebar-group">📋 시수</div>
+  <button class="tab active" onclick="switchTab('write')">✏️ 시수 입력</button>
   <button class="tab" onclick="switchTab('myrecord')">📑 내 시수 확인</button>
-  <button class="tab tab-alt" onclick="switchTab('altwrite')">🔄 발생 작성</button>
-  <button class="tab tab-alt" onclick="switchTab('altuse')">🌴 사용 작성</button>
-  <button class="tab tab-alt" onclick="switchTab('altrecord')">📋 대체시수 확인</button>
-</div>
-<div class="tabs" id="tabs-both" style="display:none">
-  <button class="tab active" onclick="switchTab('write')">✏️ 작성</button>
+  <hr class="sidebar-divider">
+  <div class="sidebar-group">🔄 대체시수</div>
+  <button class="tab tab-alt" onclick="switchTab('altwrite')">📅 대체 시수 발생일</button>
+  <button class="tab tab-alt" onclick="switchTab('altuse')">✍️ 대체 시수 입력</button>
+  <button class="tab tab-alt" onclick="switchTab('altrecord')">📋 내 대체 시수 확인</button>
+</nav>
+
+<!-- 직원+선임 사이드바 -->
+<nav class="sidebar" id="tabs-both" style="display:none">
+  <div class="sidebar-group">📋 시수</div>
+  <button class="tab active" onclick="switchTab('write')">✏️ 시수 입력</button>
   <button class="tab" onclick="switchTab('myrecord')">📑 내 시수 확인</button>
-  <button class="tab tab-alt" onclick="switchTab('altwrite')">🔄 발생 작성</button>
-  <button class="tab tab-alt" onclick="switchTab('altuse')">🌴 사용 작성</button>
-  <button class="tab tab-alt" onclick="switchTab('altrecord')">📋 대체시수 확인</button>
-  <button class="tab" onclick="switchTabSenior('dashboard')">👤 신청 현황</button>
-  <button class="tab tab-alt" onclick="switchTabSenior('altdashboard')">🔄 대체 현황</button>
-</div>
-<div class="tabs" id="tabs-senior" style="display:none">
-  <button class="tab active" onclick="switchTabSenior('dashboard')">👤 신청 현황</button>
-  <button class="tab tab-alt" onclick="switchTabSenior('altdashboard')">🔄 대체 현황</button>
-</div>
+  <button class="tab" onclick="switchTabSenior('dashboard')">👤 신청 현황 확인</button>
+  <hr class="sidebar-divider">
+  <div class="sidebar-group">🔄 대체시수</div>
+  <button class="tab tab-alt" onclick="switchTab('altwrite')">📅 대체 시수 발생일</button>
+  <button class="tab tab-alt" onclick="switchTab('altuse')">✍️ 대체 시수 입력</button>
+  <button class="tab tab-alt" onclick="switchTab('altrecord')">📋 내 대체 시수 확인</button>
+  <button class="tab tab-alt" onclick="switchTabSenior('altdashboard')">📊 대체 시수 신청 현황</button>
+</nav>
+
+<!-- 선임 사이드바 -->
+<nav class="sidebar" id="tabs-senior" style="display:none">
+  <div class="sidebar-group">📋 시수</div>
+  <button class="tab active" onclick="switchTabSenior('dashboard')">👤 신청 현황 확인</button>
+  <hr class="sidebar-divider">
+  <div class="sidebar-group">🔄 대체시수</div>
+  <button class="tab tab-alt" onclick="switchTabSenior('altdashboard')">📊 대체 시수 신청 현황</button>
+</nav>
+
+<div class="content-area">
 
 <!-- ========== [1] 시수 작성 ========== -->
 <div class="view active" id="view-write">
@@ -359,11 +387,7 @@
     </div>
   </div>
 
-  <!-- 비고 -->
-  <div class="card">
-    <div class="card-title">특이사항 / 비고</div>
-    <textarea id="alt-note" rows="3" placeholder="특이사항이 있으면 입력하세요." style="width:100%"></textarea>
-  </div>
+  <textarea id="alt-note" style="display:none"></textarea>
 </div>
 
 <!-- ========== [3-2] 대체시수 사용 작성 ========== -->
@@ -634,6 +658,9 @@
   </div>
 </div>
 
+</div><!-- /content-area -->
+</div><!-- /app-layout -->
+
 <!-- ========== [10] 관리자 화면 ========== -->
 <div id="admin-wrap" style="display:none;max-width:700px;margin:40px auto;padding:1.5rem;font-family:inherit;">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem;">
@@ -856,10 +883,15 @@ function startWithSavedName() {
   enterStaffMode();
 }
 
+function showSidebar(id) {
+  ['tabs-staff','tabs-both','tabs-senior'].forEach(function(sid){
+    document.getElementById(sid).style.display = (sid===id) ? 'flex' : 'none';
+  });
+  document.getElementById('app-layout').style.display = 'flex';
+}
+
 function enterStaffMode() {
-  document.getElementById('tabs-staff').style.display='flex';
-  document.getElementById('tabs-both').style.display='none';
-  document.getElementById('tabs-senior').style.display='none';
+  showSidebar('tabs-staff');
   document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('active'); });
   document.getElementById('view-write').classList.add('active');
   document.querySelectorAll('#tabs-staff .tab')[0].classList.add('active');
@@ -875,7 +907,8 @@ function enterStaffMode() {
 
 // 이름 선택 화면 표시
 function showNameSelectView() {
-  document.querySelectorAll('.view, .header, .tabs').forEach(function(el){ el.style.display='none'; });
+  document.getElementById('app-layout').style.display='none';
+  document.querySelectorAll('.view').forEach(function(el){ el.style.display='none'; });
   var wrap = document.getElementById('name-select-wrap');
   if (!wrap) {
     wrap = document.createElement('div');
@@ -901,8 +934,7 @@ function confirmNameSelect(name) {
   ls.set('sisuje_myname', name);
   var wrap = document.getElementById('name-select-wrap');
   if (wrap) wrap.style.display = 'none';
-  // 탭 모두 숨기고 init()이 권한에 맞는 탭 1개만 표시
-  document.querySelectorAll('.tabs').forEach(function(el){ el.style.display='none'; });
+  // init()이 권한에 맞는 사이드바 1개만 표시
   document.querySelectorAll('.view').forEach(function(el){ el.style.display=''; el.classList.remove('active'); });
   init();
 }
@@ -921,20 +953,17 @@ function enterApp(name) {
   var s=STAFF.find(function(x){ return x.name===name; });
   if (!s){ enterStaffMode(); return; }
   var effectiveMode=(window.APP_MODE&&window.APP_MODE!=='') ? window.APP_MODE : (s.mode||'staff');
-  document.getElementById('tabs-staff').style.display='none';
-  document.getElementById('tabs-both').style.display='none';
-  document.getElementById('tabs-senior').style.display='none';
   document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('active'); });
 
   if (effectiveMode==='senior') {
-    document.getElementById('tabs-senior').style.display='flex';
+    showSidebar('tabs-senior');
     document.getElementById('view-dashboard').classList.add('active');
     document.querySelectorAll('#tabs-senior .tab')[0].classList.add('active');
     window.APP_SENIOR=name;
     loadDashboard();
     startAutoRefresh();
   } else if (effectiveMode==='both') {
-    document.getElementById('tabs-both').style.display='flex';
+    showSidebar('tabs-both');
     document.getElementById('view-write').classList.add('active');
     document.querySelectorAll('#tabs-both .tab')[0].classList.add('active');
     window.APP_SENIOR=name;
@@ -1099,9 +1128,11 @@ function renderWriteTable() {
     } else {
       const startOpts=buildHourOptions(row.timeStart,range.min,range.max-1);
       const endOpts=buildHourOptions(row.timeEnd,range.min+1,range.max);
+      const monthSel=MONTH_OPTIONS.map(o=>`<option value="${o}"${o==row.month?' selected':''}>${o||'월'}</option>`).join('');
+      const daySel=DAY_OPTIONS.map(o=>`<option value="${o}"${o==row.day?' selected':''}>${o||'일'}</option>`).join('');
       tr.innerHTML=`<td class="hour-num">${i+1}</td>
-        <td><input type="number" min="1" max="12" value="${row.month}" placeholder="월" oninput="updateRow(${i},'month',this.value)" style="width:44px"></td>
-        <td><input type="number" min="1" max="31" value="${row.day}" placeholder="일" oninput="updateRow(${i},'day',this.value)" style="width:44px"></td>
+        <td><select onchange="updateRow(${i},'month',this.value)" style="width:46px">${monthSel}</select></td>
+        <td><select onchange="updateRow(${i},'day',this.value)" style="width:46px">${daySel}</select></td>
         <td><div class="time-inputs">
           <select id="ts-${i}" onchange="onTimeStart(${i},this.value)" style="width:78px">${startOpts}</select>
           <span class="time-sep">~</span>
@@ -1156,7 +1187,7 @@ function renderAltTable() {
   if (!tbody) return;
   tbody.innerHTML='';
   var B='border:1px solid #e8d8b8;';
-  var SS='border:none;background:transparent;text-align:center;font-size:0.68rem;font-family:inherit;box-sizing:border-box;width:100%;padding:1px 0;';
+  var SS='border:none;background:transparent;text-align:center;font-size:0.75rem;font-family:inherit;box-sizing:border-box;width:100%;padding:1px 0;';
   altData.rows.forEach(function(row, i) {
     var locked=row.occConfirmed;
     var tr=document.createElement('tr');
@@ -1185,8 +1216,8 @@ function renderAltTable() {
           '<span style="font-size:0.72rem;color:#aaa;">~</span>'+
           '<select onchange="updateAltRow('+i+',\'occEnd\',this.value);reRenderApproved('+i+')" style="'+SS+'display:inline-block;width:52px;">'+selOpt(TIME_OPTIONS,endVal)+'</select>'+
         '</td>'+
-        '<td style="'+B+'padding:2px;text-align:center;font-weight:600;color:#8a5e00;font-size:0.68rem;" id="alt-approved-'+i+'">'+(approved||'')+'</td>'+
-        '<td style="'+B+'padding:2px;"><input type="text" value="'+(row.occReason||'')+'" placeholder="눌러서 작성하기" oninput="updateAltRow('+i+',\'occReason\',this.value)" style="'+SS+'font-size:0.60rem;"></td>'+
+        '<td style="'+B+'padding:2px;text-align:center;font-weight:600;color:#8a5e00;font-size:0.75rem;" id="alt-approved-'+i+'">'+(approved||'')+'</td>'+
+        '<td style="'+B+'padding:2px;"><input type="text" value="'+(row.occReason||'')+'" placeholder="눌러서 작성하기" oninput="updateAltRow('+i+',\'occReason\',this.value)" style="'+SS+'font-size:0.68rem;"></td>'+
         '<td style="border:1px solid #9dd4b4;padding:2px;text-align:center;font-size:0.72rem;color:#aaa;">대기</td>';
     }
     tbody.appendChild(tr);
@@ -2125,7 +2156,8 @@ var adminStaffList = [];
 var adminApprovalList = [];
 
 function openAdmin() {
-  document.querySelectorAll('.view, .tabs').forEach(function(el){ el.style.display='none'; });
+  document.getElementById('app-layout').style.display='none';
+  document.querySelectorAll('.view').forEach(function(el){ el.style.display='none'; });
   document.getElementById('admin-wrap').style.display='block';
   adminLoggedIn = false;
   document.getElementById('admin-body').style.display='none';
@@ -2135,11 +2167,9 @@ function openAdmin() {
 }
 function closeAdmin() {
   document.getElementById('admin-wrap').style.display='none';
-  // inline style 제거 — CSS .view{display:none} / .view.active{display:block} 에 맡김
-  document.querySelectorAll('.tabs').forEach(function(el){ el.style.display='none'; });
   document.querySelectorAll('.view').forEach(function(el){
-    el.style.display='';        // inline style 초기화
-    el.classList.remove('active'); // active도 제거, init()이 다시 붙임
+    el.style.display='';
+    el.classList.remove('active');
   });
   init();
 }
