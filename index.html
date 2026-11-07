@@ -101,12 +101,12 @@
   .alt-row.cols4{grid-template-columns:repeat(4,1fr);}
 
   /* ===== 대체시수 테이블 ===== */
-  .alt-table{width:100%;border-collapse:collapse;font-size:0.75rem;table-layout:auto;}
-  .alt-table th{background:var(--alt);color:white;padding:3px 2px;text-align:center;font-weight:500;font-size:0.65rem;white-space:nowrap;}
+  .alt-table{width:100%;border-collapse:collapse;font-size:0.82rem;table-layout:auto;}
+  .alt-table th{background:var(--alt);color:white;padding:4px 3px;text-align:center;font-weight:500;font-size:0.72rem;white-space:nowrap;}
   .alt-table th:first-child{border-radius:5px 0 0 0;} .alt-table th:last-child{border-radius:0 5px 0 0;}
-  .alt-table td{border:1px solid #e8d8b8;padding:3px 2px;text-align:center;vertical-align:middle;white-space:nowrap;}
+  .alt-table td{border:1px solid #e8d8b8;padding:4px 3px;text-align:center;vertical-align:middle;white-space:nowrap;}
   .alt-table tr:nth-child(even) td{background:#fdf5e8;}
-  .alt-table input,.alt-table select{border:none;background:transparent;text-align:center;padding:2px 1px;font-size:0.70rem;font-family:'Noto Sans KR',sans-serif;}
+  .alt-table input,.alt-table select{border:none;background:transparent;text-align:center;padding:2px 1px;font-size:0.78rem;font-family:'Noto Sans KR',sans-serif;}
   .alt-table td.sep-col{background:#f5ede0;border-left:2px solid #e8c88a;border-right:2px solid #a0c4e8;width:16px;padding:0;text-align:center;font-size:0.65rem;color:#aaa;}
 
   /* ===== 내 대체시수 확인 ===== */
@@ -364,9 +364,9 @@
     <div class="table-scroll-wrap">
       <table class="alt-table" id="alt-table" style="font-size:0.70rem;">
         <colgroup>
-          <col style="width:26px"><col style="width:40px"><col style="width:40px"><col style="width:36px">
-          <col style="width:110px"><col style="width:44px"><col>
-          <col style="width:44px">
+          <col style="width:30px"><col style="width:46px"><col style="width:46px"><col style="width:40px">
+          <col style="width:120px"><col style="width:52px"><col>
+          <col style="width:52px">
         </colgroup>
         <thead>
           <tr>
@@ -1197,7 +1197,7 @@ function renderAltTable() {
   if (!tbody) return;
   tbody.innerHTML='';
   var B='border:1px solid #e8d8b8;';
-  var SS='border:none;background:transparent;text-align:center;font-size:0.75rem;font-family:inherit;box-sizing:border-box;width:38px;min-width:38px;padding:1px 0;';
+  var SS='border:none;background:transparent;text-align:center;font-size:0.78rem;font-family:inherit;box-sizing:border-box;width:44px;min-width:44px;padding:1px 0;';
   altData.rows.forEach(function(row, i) {
     var locked=row.occConfirmed;
     var tr=document.createElement('tr');
@@ -1212,12 +1212,12 @@ function renderAltTable() {
         '<td style="'+B+'padding:4px 3px;text-align:center;">'+fmtTime(row.occStart)+' ~ '+fmtTime(row.occEnd)+'</td>'+
         '<td style="'+B+'padding:4px 3px;text-align:center;font-weight:600;color:#8a5e00;">'+(approved||'')+'</td>'+
         '<td style="'+B+'padding:4px 3px;text-align:center;">'+(row.occReason||'')+'</td>'+
-        '<td style="border:1px solid #9dd4b4;padding:4px 3px;text-align:center;"><span style="font-size:0.72rem;color:#2d7a4f;font-weight:600;">✓확인</span></td>';
+        '<td style="border:1px solid #9dd4b4;padding:4px 3px;text-align:center;"><span style="font-size:0.78rem;color:#2d7a4f;font-weight:600;">✓확인</span></td>';
     } else {
       var dowOpt=DOW_OPTIONS.map(function(d){ return '<option value="'+d+'"'+(row.occDow===d?' selected':'')+'>'+d+'</option>'; }).join('');
       var startVal=fmtTime(row.occStart), endVal=fmtTime(row.occEnd);
       tr.innerHTML=
-        '<td style="'+B+'padding:3px;text-align:center;font-weight:600;color:#555;font-size:0.68rem;">'+(i+1)+'</td>'+
+        '<td style="'+B+'padding:3px;text-align:center;font-weight:600;color:#555;font-size:0.75rem;">'+(i+1)+'</td>'+
         '<td style="'+B+'padding:1px;"><select onchange="updateAltRow('+i+',\'occMonth\',this.value)" style="'+SS+'">'+selOpt(MONTH_OPTIONS,row.occMonth||'')+'</select></td>'+
         '<td style="'+B+'padding:1px;"><select onchange="updateAltRow('+i+',\'occDay\',this.value);autoFillDow('+i+')" style="'+SS+'">'+selOpt(DAY_OPTIONS,row.occDay||'')+'</select></td>'+
         '<td style="'+B+'padding:1px;"><select onchange="updateAltRow('+i+',\'occDow\',this.value)" style="'+SS+'">'+dowOpt+'</select></td>'+
@@ -1227,8 +1227,8 @@ function renderAltTable() {
           '<select onchange="updateAltRow('+i+',\'occEnd\',this.value);reRenderApproved('+i+')" style="'+SS+'display:inline-block;width:52px;">'+selOpt(TIME_OPTIONS,endVal)+'</select>'+
         '</td>'+
         '<td style="'+B+'padding:2px;text-align:center;font-weight:600;color:#8a5e00;font-size:0.75rem;" id="alt-approved-'+i+'">'+(approved||'')+'</td>'+
-        '<td style="'+B+'padding:2px;"><input type="text" value="'+(row.occReason||'')+'" placeholder="눌러서 작성하기" oninput="updateAltRow('+i+',\'occReason\',this.value)" style="border:none;background:transparent;font-size:0.68rem;font-family:inherit;width:100%;box-sizing:border-box;padding:1px 2px;"></td>'+
-        '<td style="border:1px solid #9dd4b4;padding:2px;text-align:center;font-size:0.72rem;color:#aaa;">대기</td>';
+        '<td style="'+B+'padding:2px;"><input type="text" value="'+(row.occReason||'')+'" placeholder="눌러서 작성하기" oninput="updateAltRow('+i+',\'occReason\',this.value)" style="border:none;background:transparent;font-size:0.75rem;font-family:inherit;width:100%;box-sizing:border-box;padding:1px 2px;"></td>'+
+        '<td style="border:1px solid #9dd4b4;padding:2px;text-align:center;font-size:0.78rem;color:#aaa;">대기</td>';
     }
     tbody.appendChild(tr);
   });
@@ -1250,7 +1250,7 @@ function renderAltUseTable() {
   if (!tbody) return;
   tbody.innerHTML='';
   var BO='border:1px solid #e8d8b8;', BU='border:1px solid #c8d8e8;';
-  var IS='border:none;background:transparent;text-align:center;font-size:0.68rem;font-family:inherit;box-sizing:border-box;width:100%;padding:2px 1px;';
+  var IS='border:none;background:transparent;text-align:center;font-size:0.75rem;font-family:inherit;box-sizing:border-box;width:100%;padding:2px 1px;';
   var rows=altUseData.rows||[];
   if (!rows.length) {
     tbody.innerHTML='<tr><td colspan="12" style="text-align:center;padding:1.5rem;color:#aaa;font-size:0.85rem">발생 불러오기를 눌러 데이터를 가져오세요.</td></tr>';
@@ -1273,7 +1273,7 @@ function renderAltUseTable() {
         '<td style="'+BU+'padding:3px;text-align:center;">'+(row.useDay||'')+'</td>'+
         '<td style="'+BU+'padding:3px;text-align:center;">'+(row.useDow||'')+'</td>'+
         '<td style="'+BU+'padding:3px;text-align:center;">'+(row.useStart||'')+' ~ '+(row.useEnd||'')+'</td>'+
-        '<td style="border:1px solid #9dd4b4;padding:3px;text-align:center;"><span style="font-size:0.72rem;color:#2d7a4f;font-weight:600;">✓확인</span></td>';
+        '<td style="border:1px solid #9dd4b4;padding:3px;text-align:center;"><span style="font-size:0.78rem;color:#2d7a4f;font-weight:600;">✓확인</span></td>';
     } else {
       var occOk=row.occConfirmed;
       var dowOpt=DOW_OPTIONS.map(function(d){return '<option value="'+d+'"'+(row.useDow===d?' selected':'')+'>'+d+'</option>';}).join('');
@@ -1294,7 +1294,7 @@ function renderAltUseTable() {
               '<span style="font-size:0.72rem;color:#aaa;">~</span>'+
               '<input type="text" value="'+(row.useEnd||'')+'" placeholder="18:00" oninput="updateAltUseRow('+i+',\'useEnd\',this.value)" style="'+IS+'max-width:44px;display:inline-block;width:44px;">'+
             '</td>'+
-            '<td style="border:1px solid #9dd4b4;padding:3px;text-align:center;font-size:0.72rem;color:#aaa;">대기</td>'
+            '<td style="border:1px solid #9dd4b4;padding:3px;text-align:center;font-size:0.78rem;color:#aaa;">대기</td>'
           : '<td colspan="4" style="'+BU+'padding:4px;text-align:center;font-size:0.72rem;color:#c0392b;" colspan="4">발생 미확인 — 사용 불가</td><td style="border:1px solid #e0e0e0;padding:3px;text-align:center;font-size:0.72rem;color:#aaa;">-</td>');
     }
     tbody.appendChild(tr);
