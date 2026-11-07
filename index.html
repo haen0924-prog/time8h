@@ -1162,12 +1162,12 @@ function renderAltTable() {
         '<td style="'+B+'padding:2px;"><input type="text" inputmode="numeric" maxlength="2" value="'+(row.occDay||'')+'" placeholder="일" oninput="updateAltRow('+i+',\'occDay\',this.value)" style="'+IS+'"></td>'+
         '<td style="'+B+'padding:2px;"><select onchange="updateAltRow('+i+',\'occDow\',this.value)" style="'+IS+'">'+dowOpt+'</select></td>'+
         '<td style="'+B+'padding:2px;white-space:nowrap;text-align:center;">'+
-          '<input type="text" value="'+fmtTime(row.occStart)+'" placeholder="06:00" oninput="updateAltRow('+i+',\'occStart\',this.value);reRenderApproved('+i+')" style="'+IS+'max-width:46px;display:inline-block;width:46px;">'+
+          '<input type="text" value="'+fmtTime(row.occStart)+'" placeholder="시작" oninput="updateAltRow('+i+',\'occStart\',this.value);reRenderApproved('+i+')" style="'+IS+'max-width:46px;display:inline-block;width:46px;">'+
           '<span style="font-size:0.72rem;color:#aaa;">~</span>'+
-          '<input type="text" value="'+fmtTime(row.occEnd)+'" placeholder="08:00" oninput="updateAltRow('+i+',\'occEnd\',this.value);reRenderApproved('+i+')" style="'+IS+'max-width:46px;display:inline-block;width:46px;">'+
+          '<input type="text" value="'+fmtTime(row.occEnd)+'" placeholder="종료" oninput="updateAltRow('+i+',\'occEnd\',this.value);reRenderApproved('+i+')" style="'+IS+'max-width:46px;display:inline-block;width:46px;">'+
         '</td>'+
         '<td style="'+B+'padding:2px;text-align:center;font-weight:600;color:#8a5e00;font-size:0.68rem;" id="alt-approved-'+i+'">'+(approved||'')+'</td>'+
-        '<td style="'+B+'padding:2px;"><input type="text" value="'+(row.occReason||'')+'" placeholder="사유" oninput="updateAltRow('+i+',\'occReason\',this.value)" style="'+IS+'"></td>'+
+        '<td style="'+B+'padding:2px;"><input type="text" value="'+(row.occReason||'')+'" placeholder="눌러서 작성하기" oninput="updateAltRow('+i+',\'occReason\',this.value)" style="'+IS+'font-size:0.60rem;"></td>'+
         '<td style="border:1px solid #9dd4b4;padding:2px;text-align:center;font-size:0.72rem;color:#aaa;">대기</td>';
     }
     tbody.appendChild(tr);
