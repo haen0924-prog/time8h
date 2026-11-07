@@ -418,8 +418,9 @@
     🌴 <strong>대체시수 사용</strong>: 발생이 선임 확인된 후 사용일시를 입력하세요.
   </div>
 
-  <div class="top-btn-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem;margin-bottom:0.8rem;">
+  <div class="top-btn-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:0.5rem;margin-bottom:0.8rem;">
     <button class="btn btn-primary" onclick="saveAltUseToSheet()" style="justify-content:center;padding:12px 6px;">💾 사용 저장</button>
+    <button class="btn btn-accent" onclick="printAltUse()" style="justify-content:center;padding:12px 6px;">🖨️ 인쇄</button>
     <button class="btn btn-outline" onclick="loadAltForUse()" style="justify-content:center;padding:12px 6px;">🔄 발생 불러오기</button>
     <button class="btn btn-outline" onclick="resetAltUseForm()" style="justify-content:center;padding:12px 6px;border-color:#c0392b;color:#c0392b;">🗑️ 초기화</button>
   </div>
@@ -1983,6 +1984,85 @@ function printAltOcc() {
     wrap.style.display='none';
     wrap.innerHTML='';
     document.getElementById('app-layout').style.display='flex';
+  }, 300);
+}
+
+// ===== 대체시수 사용 인쇄 =====
+function printAltUse() {
+  var rows = altUseData.rows || [];
+  if (!rows.length) { alert('인쇄할 사용 내역이 없습니다.'); return; }
+  var name = altUseData.name || document.getElementById('altuse-name').value || '';
+  var docNo = altUseData.docNo || document.getElementById('altuse-doc-no').value || '';
+  var ROWS_PER_PAGE = 8;
+  var pages = [];
+  for (var p = 0; p < rows.length; p += ROWS_PER_PAGE) {
+    pages.push(rows.slice(p, p + ROWS_PER_PAGE));
+  }
+  var totalPages = pages.length;
+  var html = pages.map(function(pageRows, pi) {
+    var startNum = pi * ROWS_PER_PAGE + 1;
+    var tbodyRows = pageRows.map(function(r, ri) {
+      var num = startNum + ri;
+      var approved = r.occHours || calcApprovedHours(r.occStart, r.occEnd) || '';
+      return '<tr>' +
+        '<td>' + num + '</td>' +
+        '<td>' + (r.occMonth||'') + '</td>' +
+        '<td>' + (r.occDay||'') + '</td>' +
+        '<td>' + (r.occDow||'') + '</td>' +
+        '<td>' + (fmtTime(r.occStart)||'') + '~' + (fmtTime(r.occEnd)||'') + '</td>' +
+        '<td>' + approved + '</td>' +
+        '<td style="background:#f0f0f0;border-left:2px solid #ccc;border-right:2px solid #5588aa;"></td>' +
+        '<td>' + (r.useMonth||'') + '</td>' +
+        '<td>' + (r.useDay||'') + '</td>' +
+        '<td>' + (r.useDow||'') + '</td>' +
+        '<td>' + (fmtTime(r.useStart)||'') + (r.useEnd?'~'+fmtTime(r.useEnd):'') + '</td>' +
+        '<td>' + (r.useConfirmed ? '✓' : '') + '</td>' +
+        '</tr>';
+    }).join('');
+    return '<div class="alt-print-page">' +
+      '<div class="alt-pt-title">대체시수 사용 신청서</div>' +
+      (totalPages > 1 ? '<div class="alt-pt-page-info">' + (pi+1) + ' / ' + totalPages + ' 페이지</div>' : '') +
+      '<table class="alt-pt-info">' +
+        '<tr>' +
+          '<td class="lb">성 명</td><td>' + name + '</td>' +
+          '<td class="lb">문서번호</td><td>' + docNo + '</td>' +
+        '</tr>' +
+      '</table>' +
+      '<table class="alt-pt-table">' +
+        '<thead>' +
+          '<tr>' +
+            '<th rowspan="2" style="width:7mm">번호</th>' +
+            '<th colspan="5" style="background:#9a6820;border-right:2px solid #ccc;">🕐 발생 (확인완료)</th>' +
+            '<th rowspan="2" style="background:#666;width:4mm;padding:0;"></th>' +
+            '<th colspan="4" style="background:#2d5986;">🌴 사용일시</th>' +
+            '<th rowspan="2" style="width:12mm">사용확인</th>' +
+          '</tr>' +
+          '<tr>' +
+            '<th style="background:#c8922a">월</th><th style="background:#c8922a">일</th><th style="background:#c8922a">요일</th>' +
+            '<th style="background:#c8922a">시간</th><th style="background:#c8922a;border-right:2px solid #ccc;">인정</th>' +
+            '<th style="background:#3d6fa0">월</th><th style="background:#3d6fa0">일</th><th style="background:#3d6fa0">요일</th>' +
+            '<th style="background:#3d6fa0">사용시간</th>' +
+          '</tr>' +
+        '</thead>' +
+        '<tbody>' + tbodyRows + '</tbody>' +
+      '</table>' +
+      (pi === totalPages - 1 ?
+        '<div class="alt-pt-sign">' +
+          '<div class="alt-pt-sign-box"><div class="role">직 원</div><div class="name">' + name + '</div></div>' +
+          '<div class="alt-pt-sign-box"><div class="role">선 임</div><div class="name">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div></div>' +
+        '</div>' : '') +
+      '</div>';
+  }).join('');
+
+  var wrap = document.getElementById('alt-print-wrap');
+  wrap.innerHTML = html;
+  document.getElementById('app-layout').style.display = 'none';
+  wrap.style.display = 'block';
+  setTimeout(function() {
+    window.print();
+    wrap.style.display = 'none';
+    wrap.innerHTML = '';
+    document.getElementById('app-layout').style.display = 'flex';
   }, 300);
 }
 
